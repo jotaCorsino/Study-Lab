@@ -62,6 +62,8 @@ Seguranca:
 
 Objetivo: salvar catalogo, progresso e configuracoes localmente.
 
+Status: concluida no recorte inicial. Application possui porta e snapshot de biblioteca; Infrastructure possui repositorio JSON local com escrita atomica.
+
 Entregas:
 
 - ADR escolhendo tecnologia de persistencia.

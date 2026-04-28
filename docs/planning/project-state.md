@@ -13,30 +13,35 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 ## Ponto atual
 
 - Data de referencia: 2026-04-28.
-- Fase atual: Fase 2 - Importacao segura de pastas.
+- Fase atual: Fase 3 - Persistencia local.
 - Status da fase: concluida no recorte inicial.
-- Ultima implementacao concluida: caso de uso de importacao, porta de leitura segura e adaptador local de sistema de arquivos.
-- Commit publicado mais recente antes desta etapa: `dab9a3b feat: add initial domain model and tests`.
+- Ultima implementacao concluida: persistencia local inicial em JSON para catalogo, progresso e preferencias.
+- Commit publicado mais recente antes desta etapa: `f533d06 feat: add secure course folder import`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
 
-Importacao segura de pastas:
+Persistencia local:
 
-- `src/StudyLab.Application` criado.
-- `src/StudyLab.Infrastructure` criado.
-- `tests/StudyLab.Application.Tests` criado.
-- `tests/StudyLab.Infrastructure.Tests` criado.
-- `ImportCourseFromFolderUseCase` criado para montar uma arvore importada a partir de caminhos relativos seguros.
-- `ICourseFolderReader` criado como porta de leitura de pasta.
-- `LocalCourseFolderReader` criado como adaptador local em modo somente leitura.
-- Allowlist inicial de videos criada: `.mp4`, `.mkv`, `.avi`, `.mov`, `.wmv`, `.webm`, `.flv`, `.m4v`.
-- `SafeRelativePath` criado para bloquear caminhos fora da raiz selecionada.
-- Arquivos com extensao nao permitida sao rejeitados com motivo controlado.
-- ADR-0002 criada para registrar a importacao como arvore flexivel de rascunho.
+- `IStudyLibraryRepository` criado em Application.
+- `StudyLibrarySnapshot` criado para catalogo, progresso e preferencias.
+- `CourseCatalogEntry`, `CourseCatalogItem`, `LessonProgressEntry` e `StudyPreferences` criados.
+- `SaveStudyLibraryUseCase` e `LoadStudyLibraryUseCase` criados.
+- `JsonStudyLibraryRepository` criado em Infrastructure usando `System.Text.Json`.
+- Escrita local usa arquivo temporario no mesmo diretorio e substituicao do arquivo final.
+- Carregamento de arquivo inexistente retorna snapshot vazio.
+- JSON invalido falha com `InvalidDataException`.
+- ADR-0003 criada para registrar persistencia local inicial em JSON.
 
 ## Historico imediato
+
+Importacao segura de pastas publicada no commit `f533d06 feat: add secure course folder import`:
+
+- `ImportCourseFromFolderUseCase`, `ICourseFolderReader` e `LocalCourseFolderReader` criados;
+- allowlist de videos criada;
+- `SafeRelativePath` criado para bloquear caminhos fora da raiz;
+- ADR-0002 criada para registrar importacao como arvore flexivel de rascunho.
 
 Dominio e testes iniciais publicados no commit `dab9a3b feat: add initial domain model and tests`:
 
@@ -61,20 +66,20 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 
 ## Proxima etapa executavel
 
-Depois que esta etapa estiver publicada, iniciar a Fase 3 - Persistencia local:
+Depois que esta etapa estiver publicada, iniciar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- criar ADR escolhendo a tecnologia de persistencia local;
-- definir portas de repositorio em Application;
-- escrever testes primeiro para salvar e carregar catalogo/progresso sem acessar dados privados;
-- implementar adaptador inicial em Infrastructure;
-- garantir escrita segura/atomica ou registrar limite conhecido se o primeiro recorte ainda nao cobrir isso.
+- resolver a pendencia do template WinUI, que ainda nao esta disponivel;
+- preparar o ambiente/template WinUI ou registrar ADR para alternativa de scaffold;
+- criar `StudyLab.Desktop`;
+- compor DI com Application e Infrastructure;
+- criar fluxo inicial de catalogo usando `IStudyLibraryRepository`;
+- manter UI sem regra de negocio e com view models testaveis.
 
 ## Pendencias praticas
 
 - Template WinUI ainda nao esta disponivel: `dotnet new list winui` retornou nenhum modelo encontrado.
 - Antes da Fase 4, preparar o ambiente/template WinUI ou registrar ADR para alternativa de scaffold.
-- Persistencia local ainda precisa de ADR.
 - Empacotamento WinUI ainda precisa de ADR.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
 
@@ -86,14 +91,15 @@ Depois que esta etapa estiver publicada, iniciar a Fase 3 - Persistencia local:
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
+- Persistencia local inicial definida como JSON com `System.Text.Json`; ver `docs/decisions/ADR-0003-local-json-persistence.md`.
 - Security by design definido como requisito permanente.
 - `docs/planning/project-state.md` definido como marcador operacional de continuidade.
 
 ## Verificacoes feitas
 
 - `git status --short --branch` antes desta etapa: `main...origin/main`, sem alteracoes.
-- `dotnet test .\StudyLab.slnx` confirmou o Red inicial por tipos ausentes em Application/Infrastructure.
-- `dotnet test .\StudyLab.slnx` executado apos implementacao com 17 testes aprovados.
+- `dotnet test .\StudyLab.slnx` confirmou o Red inicial por tipos ausentes em Persistence.
+- `dotnet test .\StudyLab.slnx` executado apos implementacao com 25 testes aprovados.
 - `dotnet build .\StudyLab.slnx` executado com sucesso, 0 avisos e 0 erros.
 - O ciclo TDD foi seguido: testes criados primeiro, falha inicial confirmada, implementacao minima adicionada e suite aprovada.
 - Apos commit/push desta etapa, `main` deve permanecer sincronizada com `origin/main`.
