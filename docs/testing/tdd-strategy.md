@@ -39,8 +39,8 @@ Para comportamento de negocio, escreva o teste antes da implementacao. O ciclo p
 
 ## Ferramentas planejadas
 
-- Test framework .NET a definir no primeiro scaffold de testes.
-- Preferencia inicial: xUnit para testes unitarios e de aplicacao.
+- Test framework .NET definido: xUnit.
+- xUnit deve ser usado para testes unitarios de dominio e aplicacao.
 - Testes de arquitetura podem ser feitos por reflexao propria antes de adicionar bibliotecas.
 - Playwright ou equivalente so quando houver fluxos de UI que justifiquem automacao.
 
@@ -53,4 +53,3 @@ Uma mudanca so deve ser considerada pronta quando:
 - comportamento foi validado manualmente quando envolver UI;
 - riscos de seguranca foram revisados;
 - documentacao ou ADR foi atualizada se a decisao mudou.
-

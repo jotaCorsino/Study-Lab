@@ -25,6 +25,8 @@ Validacao:
 
 Objetivo: modelar regras centrais sem UI e sem infraestrutura.
 
+Status: concluida no recorte inicial. A solucao, o projeto de dominio, o projeto de testes xUnit e as primeiras regras puras foram criados; detalhes operacionais ficam em `docs/planning/project-state.md`.
+
 Entregas:
 
 - Projetos `StudyLab.Domain` e `StudyLab.Domain.Tests`.

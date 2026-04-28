@@ -34,9 +34,9 @@ appsettings*.Local.json
 *.cer
 
 # Local app/user data
-data/
-local-data/
-AppData/
+/data/
+/local-data/
+/AppData/
 *.db
 *.sqlite
 *.sqlite3
@@ -44,9 +44,9 @@ AppData/
 *.db-wal
 
 # User course media and private materials
-courses/
-videos/
-materials/
+/courses/
+/videos/
+/materials/
 *.mp4
 *.mkv
 *.avi
@@ -70,4 +70,3 @@ Debug/
 # OS
 Thumbs.db
 Desktop.ini
-

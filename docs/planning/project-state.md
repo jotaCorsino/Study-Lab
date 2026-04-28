@@ -13,23 +13,32 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 ## Ponto atual
 
 - Data de referencia: 2026-04-28.
-- Fase atual: Fase 0 - Fundacao do repositorio.
-- Status da fase: concluida apos a publicacao desta etapa de continuidade.
-- Ultima implementacao concluida: documento vivo de estado do projeto, regra de continuidade e leitura obrigatoria atualizadas.
-- Commit publicado mais recente antes da regra de continuidade: `4ea56bf docs: bootstrap study lab foundation`.
+- Fase atual: Fase 1 - Dominio e testes iniciais.
+- Status da fase: concluida no recorte inicial.
+- Ultima implementacao concluida: solucao .NET, projeto de dominio, projeto de testes xUnit e primeiras regras puras de estudo.
+- Commit publicado mais recente antes desta etapa: `f4379b0 docs: add project state tracking`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
 
-Documento vivo de continuidade:
+Dominio e testes iniciais:
 
-- `docs/planning/project-state.md` criado como marcador operacional.
-- `HARNESS.md` atualizado para incluir o estado vivo na leitura obrigatoria.
-- `.agents/rules/project-context.md`, `docs/README.md`, `docs/process/versioning-and-repository.md` e `docs/planning/implementation-plan.md` atualizados com a regra de continuidade.
-- Fase 0 marcada como concluida para permitir iniciar a Fase 1 na proxima execucao.
+- `StudyLab.slnx` criado.
+- `src/StudyLab.Domain` criado como biblioteca `net10.0`.
+- `tests/StudyLab.Domain.Tests` criado com xUnit e referencia para o dominio.
+- Central Package Management atualizado com pacotes de teste.
+- `.gitignore` ajustado para proteger pastas locais de cursos sem ignorar namespaces/pastas de codigo como `Courses`.
+- Modelos iniciais criados para curso, modulo, topico, aula, sessao, progresso, meta diaria e credito mensal.
+- Testes criados para progresso de aula, meta diaria, credito/abono mensal e estrutura hierarquica de curso.
 
 ## Historico imediato
+
+Documento vivo de continuidade publicado no commit `f4379b0 docs: add project state tracking`:
+
+- `docs/planning/project-state.md` criado como marcador operacional;
+- `HARNESS.md` atualizado para incluir o estado vivo na leitura obrigatoria;
+- documentos de suporte atualizados com a regra de continuidade.
 
 Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap study lab foundation`:
 
@@ -41,13 +50,14 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 
 ## Proxima etapa executavel
 
-Depois que esta etapa estiver publicada, iniciar a Fase 1 - Dominio e testes iniciais:
+Depois que esta etapa estiver publicada, iniciar a Fase 2 - Importacao segura de pastas:
 
 - reler a arvore obrigatoria completa;
-- criar a solucao .NET e os projetos iniciais de dominio/testes;
-- escolher e configurar o framework de testes;
-- escrever os primeiros testes de dominio para progresso, meta diaria, credito mensal e abono;
-- implementar o minimo de dominio necessario para passar nos testes.
+- criar `StudyLab.Application` e `StudyLab.Infrastructure`;
+- definir o caso de uso de importacao em Application;
+- definir porta de leitura segura de arquivos/pastas;
+- escrever testes primeiro para extensoes permitidas, estrutura de pasta e bloqueio de saida da raiz;
+- implementar adaptador de sistema de arquivos em Infrastructure em modo somente leitura.
 
 ## Pendencias praticas
 
@@ -63,15 +73,17 @@ Depois que esta etapa estiver publicada, iniciar a Fase 1 - Dominio e testes ini
 - Arquitetura limpa definida com Domain, Application, Infrastructure e Desktop.
 - WinUI 3 definido como UI planejada para Windows, condicionado a preparacao do ambiente.
 - TDD definido como fluxo padrao para comportamento de negocio.
+- xUnit definido como framework de testes unitarios.
 - Security by design definido como requisito permanente.
 - `docs/planning/project-state.md` definido como marcador operacional de continuidade.
 
 ## Verificacoes feitas
 
 - `git status --short --branch` antes desta etapa: `main...origin/main`, sem alteracoes.
-- `dotnet --info` confirmou SDK .NET 10.0.202 instalado.
-- `dotnet new list winui` confirmou que o template WinUI ainda nao esta disponivel.
-- Esta etapa e documental; testes .NET nao sao necessarios.
+- `dotnet test .\StudyLab.slnx` executado com 11 testes aprovados.
+- `dotnet build .\StudyLab.slnx` executado com sucesso, 0 avisos e 0 erros.
+- `git status --ignored --short` usado para confirmar que `bin/` e `obj/` ficam ignorados e que codigo-fonte nao fica oculto pelo `.gitignore`.
+- O ciclo TDD foi seguido: testes criados primeiro, falha inicial confirmada por tipos ausentes, implementacao minima adicionada e suite aprovada.
 - Apos commit/push desta etapa, `main` deve permanecer sincronizada com `origin/main`.
 
 ## Criterio para continuar
