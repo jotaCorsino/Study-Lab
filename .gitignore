@@ -1,0 +1,73 @@
+# .NET
+bin/
+obj/
+artifacts/
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# IDEs
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.user
+*.suo
+*.rsuser
+
+# Logs and diagnostics
+*.log
+logs/
+crashdumps/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings*.Local.json
+*.pfx
+*.pem
+*.key
+*.cer
+
+# Local app/user data
+data/
+local-data/
+AppData/
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# User course media and private materials
+courses/
+videos/
+materials/
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.webm
+*.flv
+*.m4v
+
+# Build/package outputs
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.nupkg
+*.snupkg
+publish/
+Release/
+Debug/
+
+# OS
+Thumbs.db
+Desktop.ini
+

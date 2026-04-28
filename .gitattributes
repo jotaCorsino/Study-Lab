@@ -1,0 +1,15 @@
+* text=auto
+
+*.md text
+*.cs text
+*.csproj text
+*.props text
+*.targets text
+*.sln text
+*.slnx text
+*.xaml text
+*.json text
+*.yml text
+*.yaml text
+*.ps1 text eol=crlf
+
