@@ -1,11 +1,14 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/StudyLab.Application/StudyLab.Application.csproj" />
+    <Project Path="src/StudyLab.Desktop/StudyLab.Desktop.csproj" />
+    <Project Path="src/StudyLab.Desktop.Presentation/StudyLab.Desktop.Presentation.csproj" />
     <Project Path="src/StudyLab.Domain/StudyLab.Domain.csproj" />
     <Project Path="src/StudyLab.Infrastructure/StudyLab.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/StudyLab.Application.Tests/StudyLab.Application.Tests.csproj" />
+    <Project Path="tests/StudyLab.Desktop.Tests/StudyLab.Desktop.Tests.csproj" />
     <Project Path="tests/StudyLab.Domain.Tests/StudyLab.Domain.Tests.csproj" />
     <Project Path="tests/StudyLab.Infrastructure.Tests/StudyLab.Infrastructure.Tests.csproj" />
   </Folder>

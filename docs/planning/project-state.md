@@ -13,14 +13,29 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 ## Ponto atual
 
 - Data de referencia: 2026-04-28.
-- Fase atual: Fase 3 - Persistencia local.
-- Status da fase: concluida no recorte inicial.
-- Ultima implementacao concluida: persistencia local inicial em JSON para catalogo, progresso e preferencias.
-- Commit publicado mais recente antes desta etapa: `f533d06 feat: add secure course folder import`.
+- Fase atual: Fase 4 - App desktop e catalogo.
+- Status da fase: em andamento, com scaffold WinUI e catalogo inicial concluidos neste recorte.
+- Ultima implementacao concluida: shell WinUI inicial, camada de apresentacao testavel e catalogo somente leitura.
+- Commit publicado mais recente antes desta etapa: `9b284a5 feat: add local study library persistence`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+App desktop e catalogo inicial:
+
+- Template WinUI oficial Microsoft instalado via `dotnet new install Microsoft.WindowsAppSDK.WinUI.CSharp.Templates`.
+- `dotnet new list winui` passou a listar o template `WinUI Blank App`.
+- `StudyLab.Desktop` criado com WinUI 3, .NET 10 e single-project MSIX packaged.
+- `StudyLab.Desktop.Presentation` criado para view models testaveis sem carregar WinUI/Windows App SDK nos testes unitarios.
+- `CatalogViewModel` e `CatalogCourseViewModel` criados para carregar cursos de `LoadStudyLibraryUseCase`.
+- Catalogo inicial exibe titulo do curso e quantidade de aulas, sem expor caminhos locais do curso na UI.
+- `MainPage` criada como tela inicial de catalogo.
+- `DesktopCompositionRoot` compoe `JsonStudyLibraryRepository`, `LoadStudyLibraryUseCase` e `CatalogViewModel`.
+- Manifesto WinUI revisado para remover capability `systemAIModels`; `runFullTrust` permanece por ser requisito do app desktop empacotado.
+- ADR-0004 criada para registrar scaffold WinUI, empacotamento inicial e separacao da camada de apresentacao.
+
+## Historico imediato
 
 Persistencia local:
 
@@ -33,8 +48,6 @@ Persistencia local:
 - Carregamento de arquivo inexistente retorna snapshot vazio.
 - JSON invalido falha com `InvalidDataException`.
 - ADR-0003 criada para registrar persistencia local inicial em JSON.
-
-## Historico imediato
 
 Importacao segura de pastas publicada no commit `f533d06 feat: add secure course folder import`:
 
@@ -66,28 +79,31 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 
 ## Proxima etapa executavel
 
-Depois que esta etapa estiver publicada, iniciar a Fase 4 - App desktop e catalogo:
+Continuar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- resolver a pendencia do template WinUI, que ainda nao esta disponivel;
-- preparar o ambiente/template WinUI ou registrar ADR para alternativa de scaffold;
-- criar `StudyLab.Desktop`;
-- compor DI com Application e Infrastructure;
-- criar fluxo inicial de catalogo usando `IStudyLibraryRepository`;
+- criar o fluxo de importacao pela UI com dialogo controlado de selecao de pasta;
+- transformar `ImportedCourse` em entrada de catalogo persistida;
+- salvar biblioteca atualizada com `SaveStudyLibraryUseCase`;
+- tratar erros de importacao na UI sem expor stack traces ou caminhos sensiveis desnecessarios;
+- ajustar verificacao de solucao para builds WinUI com plataforma x64;
 - manter UI sem regra de negocio e com view models testaveis.
 
 ## Pendencias praticas
 
-- Template WinUI ainda nao esta disponivel: `dotnet new list winui` retornou nenhum modelo encontrado.
-- Antes da Fase 4, preparar o ambiente/template WinUI ou registrar ADR para alternativa de scaffold.
-- Empacotamento WinUI ainda precisa de ADR.
+- Ajustar a estrategia de verificacao por `.slnx`: `dotnet test .\StudyLab.slnx -p:Platform=x64` retornou configuracao de solucao invalida `Debug|x64`.
+- Criar fluxo de importacao pela UI.
+- Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
 
 ## Decisoes recentes
 
 - .NET 10 adotado como base inicial.
 - Arquitetura limpa definida com Domain, Application, Infrastructure e Desktop.
-- WinUI 3 definido como UI planejada para Windows, condicionado a preparacao do ambiente.
+- WinUI 3 definido como UI para Windows.
+- Scaffold WinUI inicial definido pelo template oficial Microsoft `Microsoft.WindowsAppSDK.WinUI.CSharp.Templates`; ver `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
+- Empacotamento inicial definido como single-project MSIX packaged; assinatura/distribuicao ainda pendentes para release.
+- View models desktop ficam em `StudyLab.Desktop.Presentation` para evitar acoplamento de testes ao runtime WinUI.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -98,11 +114,20 @@ Depois que esta etapa estiver publicada, iniciar a Fase 4 - App desktop e catalo
 ## Verificacoes feitas
 
 - `git status --short --branch` antes desta etapa: `main...origin/main`, sem alteracoes.
-- `dotnet test .\StudyLab.slnx` confirmou o Red inicial por tipos ausentes em Persistence.
-- `dotnet test .\StudyLab.slnx` executado apos implementacao com 25 testes aprovados.
-- `dotnet build .\StudyLab.slnx` executado com sucesso, 0 avisos e 0 erros.
-- O ciclo TDD foi seguido: testes criados primeiro, falha inicial confirmada, implementacao minima adicionada e suite aprovada.
-- Apos commit/push desta etapa, `main` deve permanecer sincronizada com `origin/main`.
+- `dotnet new list winui` inicialmente retornou nenhum modelo encontrado.
+- Bootstrap WinUI via `winget configure -f config.yaml --accept-configuration-agreements --disable-interactivity` concluiu com sucesso, mas o template CLI ainda nao apareceu.
+- `dotnet new search winui` encontrou o pacote oficial Microsoft `Microsoft.WindowsAppSDK.WinUI.CSharp.Templates`.
+- `dotnet new install Microsoft.WindowsAppSDK.WinUI.CSharp.Templates` instalou templates WinUI.
+- Red de TDD confirmado com `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj -p:Platform=x64`: namespace `StudyLab.Desktop.Catalog` inexistente.
+- Teste unitario desktop inicialmente falhou ao referenciar diretamente a assembly WinUI por inicializacao COM do Windows App SDK; a correcao foi separar view models em `StudyLab.Desktop.Presentation`.
+- `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
+- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 7 testes aprovados.
+- `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 3 testes aprovados.
+- `dotnet build .\src\StudyLab.Desktop\StudyLab.Desktop.csproj -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
+- `Add-AppxPackage -Register` executado no manifesto gerado e launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab`; re-registro posterior indicou pacote ja instalado, e o launch do pacote existente continuou funcionando.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64` nao passou por configuracao de solucao invalida `Debug|x64`; usar testes por projeto ate ajustar a solucao.
+- `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar
 

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "StudyLab.Desktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "StudyLab.Desktop (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -9,10 +9,11 @@ Manter o Study Lab simples, testavel e sustentavel. A arquitetura deve permitir 
 Usaremos Clean Architecture com dependencias apontando para dentro:
 
 ```text
-StudyLab.Desktop         -> Application
-StudyLab.Infrastructure  -> Application, Domain
-StudyLab.Application     -> Domain
-StudyLab.Domain          -> nenhuma camada do app
+StudyLab.Desktop              -> Desktop.Presentation, Application, Infrastructure
+StudyLab.Desktop.Presentation -> Application
+StudyLab.Infrastructure       -> Application, Domain
+StudyLab.Application          -> Domain
+StudyLab.Domain               -> nenhuma camada do app
 ```
 
 ## Projetos previstos
@@ -20,14 +21,15 @@ StudyLab.Domain          -> nenhuma camada do app
 - `StudyLab.Domain`: entidades, value objects, regras de negocio puras, eventos de dominio e erros de dominio.
 - `StudyLab.Application`: casos de uso, portas, DTOs internos, validacoes de aplicacao e orquestracao.
 - `StudyLab.Infrastructure`: adaptadores para sistema de arquivos, persistencia local, relogio, configuracao, logs e servicos externos quando existirem.
-- `StudyLab.Desktop`: WinUI 3, shell, navegacao, view models, recursos visuais e composicao de DI.
+- `StudyLab.Desktop.Presentation`: view models e modelos de apresentacao testaveis sem carregar WinUI ou Windows App SDK.
+- `StudyLab.Desktop`: WinUI 3, shell, navegacao, recursos visuais e composicao de DI.
 
 ## Testes previstos
 
 - `StudyLab.Domain.Tests`: regras puras e calculos de negocio.
 - `StudyLab.Application.Tests`: casos de uso com portas fake/in-memory.
 - `StudyLab.Infrastructure.Tests`: adaptadores reais ou controlados, especialmente sistema de arquivos e persistencia.
-- `StudyLab.Desktop.Tests`: view models e logica de apresentacao sem depender da UI real.
+- `StudyLab.Desktop.Tests`: view models e logica de apresentacao sem depender da UI real nem inicializar o runtime WinUI.
 - `StudyLab.Architecture.Tests`: regras de dependencia entre camadas.
 
 ## Principios SOLID aplicados
@@ -56,10 +58,8 @@ StudyLab.Domain          -> nenhuma camada do app
 
 ## Decisoes pendentes
 
-- Persistencia local: SQLite, arquivos JSON estruturados ou outra opcao.
 - Framework MVVM e toolkit: usar somente se reduzir codigo repetitivo real.
-- Empacotamento WinUI: packaged ou unpackaged.
+- Empacotamento WinUI de release: assinatura, identidade e distribuicao.
 - Estrategia de backup/restauracao.
 
 Cada decisao relevante deve gerar ADR em `docs/decisions/`.
-

@@ -35,6 +35,7 @@ O produto deve permitir importar cursos locais, organizar aulas, assistir videos
 |   |-- StudyLab.Domain/
 |   |-- StudyLab.Application/
 |   |-- StudyLab.Infrastructure/
+|   |-- StudyLab.Desktop.Presentation/
 |   `-- StudyLab.Desktop/
 |-- tests/
 |   |-- StudyLab.Domain.Tests/
