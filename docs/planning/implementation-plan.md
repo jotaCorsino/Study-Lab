@@ -6,12 +6,15 @@ Este plano organiza a construcao incremental do Study Lab usando .NET, Clean Arc
 
 Objetivo: preparar a base de trabalho.
 
+Status: concluida apos a publicacao da etapa de continuidade. A fundacao inicial ja foi publicada no commit `4ea56bf docs: bootstrap study lab foundation`; a continuidade operacional passa a ser acompanhada em `docs/planning/project-state.md`.
+
 Entregas:
 
 - HARNESS obrigatorio.
 - Documentacao de produto, arquitetura, seguranca, TDD e versionamento.
 - Git inicializado e remoto configurado.
 - Higiene de `.gitignore`, `.editorconfig`, `global.json` e arquivos .NET compartilhados.
+- Documento vivo de estado do projeto incluido na leitura obrigatoria.
 
 Validacao:
 
@@ -170,4 +173,3 @@ Seguranca:
 - Revisao de dependencias.
 - Checklist de privacidade.
 - Validacao de logs e artefatos de build.
-

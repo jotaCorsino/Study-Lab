@@ -32,10 +32,11 @@ Usar Conventional Commits quando possivel:
 
 1. Ler `HARNESS.md`.
 2. Revisar `git status`.
-3. Confirmar que nao ha segredos, dados locais, videos, PDFs privados, bancos locais ou artefatos gerados.
-4. Executar testes/build relevantes.
-5. Fazer commit pequeno e descritivo.
-6. Enviar para o remoto oficial.
+3. Atualizar `docs/planning/project-state.md` quando uma etapa tiver sido concluida.
+4. Confirmar que nao ha segredos, dados locais, videos, PDFs privados, bancos locais ou artefatos gerados.
+5. Executar testes/build relevantes.
+6. Fazer commit pequeno e descritivo.
+7. Enviar para o remoto oficial.
 
 ## Arquivos que nao devem ir para o remoto
 
@@ -52,4 +53,3 @@ Usar Conventional Commits quando possivel:
 Documentacao tecnica, ADRs, planos, checklists e exemplos sem dados sensiveis podem ser versionados.
 
 Documentos com caminhos reais do usuario, nomes de cursos privados, materiais pagos, credenciais, tokens, chaves ou dados pessoais nao devem ser versionados.
-

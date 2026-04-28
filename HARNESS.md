@@ -14,6 +14,7 @@ Antes de executar qualquer tarefa, leia a arvore abaixo na ordem indicada. Se a 
 6. `docs/testing/tdd-strategy.md`
 7. `docs/process/versioning-and-repository.md`
 8. `docs/planning/implementation-plan.md`
+9. `docs/planning/project-state.md`
 
 O briefing original do produto fica em `docs/product/study-lab-app.md` e deve ser consultado quando houver duvida sobre comportamento esperado, linguagem de produto ou escopo funcional.
 
@@ -55,6 +56,10 @@ Execute testes, build e verificacoes relevantes. Registre qualquer teste nao exe
 
 Revise `git status`, garanta que nao ha arquivos sensiveis, faca commit pequeno e envie para o remoto quando a entrega estiver consistente.
 
+### Gate 6 - Estado do projeto
+
+Atualize `docs/planning/project-state.md` ao fim de cada etapa concluida, antes do commit/push, registrando a ultima entrega, a proxima etapa executavel, verificacoes feitas e pendencias praticas.
+
 ## Pilha tecnica inicial
 
 - Plataforma: .NET 10.
@@ -64,4 +69,3 @@ Revise `git status`, garanta que nao ha arquivos sensiveis, faca commit pequeno 
 - Arquitetura: Clean Architecture com Domain, Application, Infrastructure e Desktop.
 - Testes: unitarios primeiro; integracao e UI conforme a funcionalidade amadurecer.
 - Dados: local-first/offline-first, com persistencia local a definir por ADR antes da implementacao.
-

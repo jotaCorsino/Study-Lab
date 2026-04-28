@@ -12,5 +12,5 @@ A ordem obrigatoria de leitura esta definida em `../HARNESS.md`.
 - `testing/tdd-strategy.md`: estrategia de TDD e tipos de teste.
 - `process/versioning-and-repository.md`: fluxo de git, remoto, commits e arquivos proibidos.
 - `planning/implementation-plan.md`: plano incremental de implementacao.
+- `planning/project-state.md`: estado vivo, ultima etapa concluida e proxima etapa executavel.
 - `decisions/`: ADRs e decisoes arquiteturais.
-

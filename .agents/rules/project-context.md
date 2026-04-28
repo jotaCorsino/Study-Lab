@@ -51,8 +51,9 @@ Pastas de codigo podem ser criadas incrementalmente. Pastas sem implementacao ai
 ## Regras permanentes
 
 - Antes de implementar, consulte a arvore de leitura em `HARNESS.md`.
+- Use `docs/planning/project-state.md` para localizar a fase atual, a ultima etapa concluida e a proxima etapa executavel.
+- Atualize `docs/planning/project-state.md` ao concluir cada etapa, antes de commit e push.
 - Antes de criar uma dependencia, explique o problema que ela resolve.
 - Antes de mexer em arquivos locais do usuario, valide caminho, extensao, permissao e intencao.
 - Antes de persistir dados, defina quais dados sao sensiveis e como serao protegidos.
 - Antes de enviar ao remoto, revise arquivos rastreados e ignore dados privados.
-
