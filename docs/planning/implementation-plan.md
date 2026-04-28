@@ -42,6 +42,8 @@ Seguranca:
 
 Objetivo: transformar uma pasta local em estrutura de curso.
 
+Status: concluida no recorte inicial. Application possui caso de uso, porta e arvore de importacao; Infrastructure possui leitor local com allowlist, caminhos relativos seguros e rejeicoes controladas.
+
 Entregas:
 
 - Caso de uso de importacao em `StudyLab.Application`.

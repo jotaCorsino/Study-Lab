@@ -13,26 +13,37 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 ## Ponto atual
 
 - Data de referencia: 2026-04-28.
-- Fase atual: Fase 1 - Dominio e testes iniciais.
+- Fase atual: Fase 2 - Importacao segura de pastas.
 - Status da fase: concluida no recorte inicial.
-- Ultima implementacao concluida: solucao .NET, projeto de dominio, projeto de testes xUnit e primeiras regras puras de estudo.
-- Commit publicado mais recente antes desta etapa: `f4379b0 docs: add project state tracking`.
+- Ultima implementacao concluida: caso de uso de importacao, porta de leitura segura e adaptador local de sistema de arquivos.
+- Commit publicado mais recente antes desta etapa: `dab9a3b feat: add initial domain model and tests`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
 
-Dominio e testes iniciais:
+Importacao segura de pastas:
 
-- `StudyLab.slnx` criado.
-- `src/StudyLab.Domain` criado como biblioteca `net10.0`.
-- `tests/StudyLab.Domain.Tests` criado com xUnit e referencia para o dominio.
-- Central Package Management atualizado com pacotes de teste.
-- `.gitignore` ajustado para proteger pastas locais de cursos sem ignorar namespaces/pastas de codigo como `Courses`.
-- Modelos iniciais criados para curso, modulo, topico, aula, sessao, progresso, meta diaria e credito mensal.
-- Testes criados para progresso de aula, meta diaria, credito/abono mensal e estrutura hierarquica de curso.
+- `src/StudyLab.Application` criado.
+- `src/StudyLab.Infrastructure` criado.
+- `tests/StudyLab.Application.Tests` criado.
+- `tests/StudyLab.Infrastructure.Tests` criado.
+- `ImportCourseFromFolderUseCase` criado para montar uma arvore importada a partir de caminhos relativos seguros.
+- `ICourseFolderReader` criado como porta de leitura de pasta.
+- `LocalCourseFolderReader` criado como adaptador local em modo somente leitura.
+- Allowlist inicial de videos criada: `.mp4`, `.mkv`, `.avi`, `.mov`, `.wmv`, `.webm`, `.flv`, `.m4v`.
+- `SafeRelativePath` criado para bloquear caminhos fora da raiz selecionada.
+- Arquivos com extensao nao permitida sao rejeitados com motivo controlado.
+- ADR-0002 criada para registrar a importacao como arvore flexivel de rascunho.
 
 ## Historico imediato
+
+Dominio e testes iniciais publicados no commit `dab9a3b feat: add initial domain model and tests`:
+
+- `StudyLab.slnx`, `StudyLab.Domain` e `StudyLab.Domain.Tests` criados;
+- xUnit definido como framework de testes unitarios;
+- modelos iniciais criados para curso, modulo, topico, aula, sessao, progresso, meta diaria e credito mensal;
+- testes de dominio criados e aprovados.
 
 Documento vivo de continuidade publicado no commit `f4379b0 docs: add project state tracking`:
 
@@ -50,14 +61,14 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 
 ## Proxima etapa executavel
 
-Depois que esta etapa estiver publicada, iniciar a Fase 2 - Importacao segura de pastas:
+Depois que esta etapa estiver publicada, iniciar a Fase 3 - Persistencia local:
 
 - reler a arvore obrigatoria completa;
-- criar `StudyLab.Application` e `StudyLab.Infrastructure`;
-- definir o caso de uso de importacao em Application;
-- definir porta de leitura segura de arquivos/pastas;
-- escrever testes primeiro para extensoes permitidas, estrutura de pasta e bloqueio de saida da raiz;
-- implementar adaptador de sistema de arquivos em Infrastructure em modo somente leitura.
+- criar ADR escolhendo a tecnologia de persistencia local;
+- definir portas de repositorio em Application;
+- escrever testes primeiro para salvar e carregar catalogo/progresso sem acessar dados privados;
+- implementar adaptador inicial em Infrastructure;
+- garantir escrita segura/atomica ou registrar limite conhecido se o primeiro recorte ainda nao cobrir isso.
 
 ## Pendencias praticas
 
@@ -74,16 +85,17 @@ Depois que esta etapa estiver publicada, iniciar a Fase 2 - Importacao segura de
 - WinUI 3 definido como UI planejada para Windows, condicionado a preparacao do ambiente.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
+- Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
 - Security by design definido como requisito permanente.
 - `docs/planning/project-state.md` definido como marcador operacional de continuidade.
 
 ## Verificacoes feitas
 
 - `git status --short --branch` antes desta etapa: `main...origin/main`, sem alteracoes.
-- `dotnet test .\StudyLab.slnx` executado com 11 testes aprovados.
+- `dotnet test .\StudyLab.slnx` confirmou o Red inicial por tipos ausentes em Application/Infrastructure.
+- `dotnet test .\StudyLab.slnx` executado apos implementacao com 17 testes aprovados.
 - `dotnet build .\StudyLab.slnx` executado com sucesso, 0 avisos e 0 erros.
-- `git status --ignored --short` usado para confirmar que `bin/` e `obj/` ficam ignorados e que codigo-fonte nao fica oculto pelo `.gitignore`.
-- O ciclo TDD foi seguido: testes criados primeiro, falha inicial confirmada por tipos ausentes, implementacao minima adicionada e suite aprovada.
+- O ciclo TDD foi seguido: testes criados primeiro, falha inicial confirmada, implementacao minima adicionada e suite aprovada.
 - Apos commit/push desta etapa, `main` deve permanecer sincronizada com `origin/main`.
 
 ## Criterio para continuar
