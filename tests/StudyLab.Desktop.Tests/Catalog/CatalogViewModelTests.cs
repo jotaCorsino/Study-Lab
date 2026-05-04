@@ -1,4 +1,5 @@
 using System.Globalization;
+using StudyLab.Application.Courses.Importing;
 using StudyLab.Application.Persistence;
 using StudyLab.Desktop.Presentation.Catalog;
 
@@ -9,7 +10,7 @@ public sealed class CatalogViewModelTests
     [Fact]
     public void LoadShowsEmptyCatalogMessageWhenLibraryHasNoCourses()
     {
-        CatalogViewModel viewModel = new(new LoadStudyLibraryUseCase(new FakeStudyLibraryRepository()));
+        CatalogViewModel viewModel = CreateViewModel(new FakeStudyLibraryRepository());
 
         viewModel.Load();
 
@@ -22,8 +23,8 @@ public sealed class CatalogViewModelTests
     public void LoadProjectsCoursesIntoCatalogItems()
     {
         CourseCatalogEntry course = CreateCourse("Curso C#", lessonCount: 3);
-        CatalogViewModel viewModel = new(new LoadStudyLibraryUseCase(new FakeStudyLibraryRepository(
-            new StudyLibrarySnapshot([course], [], StudyPreferences.Default))));
+        CatalogViewModel viewModel = CreateViewModel(new FakeStudyLibraryRepository(
+            new StudyLibrarySnapshot([course], [], StudyPreferences.Default)));
 
         viewModel.Load();
 
@@ -46,6 +47,56 @@ public sealed class CatalogViewModelTests
 
         Assert.DoesNotContain(publicPropertyNames, property => property.Contains("Path", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(publicPropertyNames, property => property.Contains("Root", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ImportCourseAsyncDoesNothingWhenFolderSelectionIsCanceled()
+    {
+        FakeStudyLibraryRepository repository = new();
+        CatalogViewModel viewModel = CreateViewModel(repository, picker: new FakeCourseFolderPicker(null));
+
+        await viewModel.ImportCourseAsync();
+
+        Assert.Null(repository.SavedSnapshot);
+        Assert.Equal("Importacao cancelada", viewModel.StatusMessage);
+        Assert.False(viewModel.IsImporting);
+    }
+
+    [Fact]
+    public async Task ImportCourseAsyncImportsSelectedFolderAndRefreshesCatalog()
+    {
+        FakeStudyLibraryRepository repository = new();
+        CatalogViewModel viewModel = CreateViewModel(
+            repository,
+            new FakeCourseFolderReader(new CourseFolderSnapshot(
+                "Curso C#",
+                [new CourseFileCandidate("Modulo/Aula 01.mp4")],
+                [])),
+            new FakeCourseFolderPicker("D:/Courses/CSharp"));
+
+        await viewModel.ImportCourseAsync();
+
+        Assert.NotNull(repository.SavedSnapshot);
+        CatalogCourseViewModel course = Assert.Single(viewModel.Courses);
+        Assert.Equal("Curso C#", course.Title);
+        Assert.Equal("Curso importado com sucesso", viewModel.StatusMessage);
+        Assert.False(viewModel.IsImporting);
+    }
+
+    [Fact]
+    public async Task ImportCourseAsyncUsesSafeErrorMessageWhenImportFails()
+    {
+        FakeStudyLibraryRepository repository = new();
+        CatalogViewModel viewModel = CreateViewModel(
+            repository,
+            new ThrowingCourseFolderReader(new UnauthorizedAccessException("Access denied to D:/Courses/Private")),
+            new FakeCourseFolderPicker("D:/Courses/Private"));
+
+        await viewModel.ImportCourseAsync();
+
+        Assert.Equal("Nao foi possivel importar o curso selecionado.", viewModel.StatusMessage);
+        Assert.DoesNotContain("D:/Courses/Private", viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.False(viewModel.IsImporting);
     }
 
     private static CourseCatalogEntry CreateCourse(string title, int lessonCount)
@@ -72,6 +123,49 @@ public sealed class CatalogViewModelTests
             DateTimeOffset.Parse("2026-04-28T12:00:00Z", CultureInfo.InvariantCulture));
     }
 
+    private static CatalogViewModel CreateViewModel(
+        FakeStudyLibraryRepository repository,
+        ICourseFolderReader? reader = null,
+        ICourseFolderPicker? picker = null)
+    {
+        ICourseFolderReader courseFolderReader = reader ?? new FakeCourseFolderReader(new CourseFolderSnapshot("Curso C#", [], []));
+
+        return new CatalogViewModel(
+            new LoadStudyLibraryUseCase(repository),
+            new ImportCourseToLibraryUseCase(new ImportCourseFromFolderUseCase(courseFolderReader), repository),
+            picker ?? new FakeCourseFolderPicker(null),
+            () => Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            () => DateTimeOffset.Parse("2026-05-04T10:00:00Z", CultureInfo.InvariantCulture));
+    }
+
+    private sealed class FakeCourseFolderPicker(string? selectedPath) : ICourseFolderPicker
+    {
+        public Task<string?> PickFolderAsync()
+        {
+            return Task.FromResult(selectedPath);
+        }
+    }
+
+    private sealed class FakeCourseFolderReader(CourseFolderSnapshot snapshot) : ICourseFolderReader
+    {
+        public CourseFolderSnapshot Read(ImportCourseCommand command)
+        {
+            ArgumentNullException.ThrowIfNull(command);
+
+            return snapshot;
+        }
+    }
+
+    private sealed class ThrowingCourseFolderReader(Exception exception) : ICourseFolderReader
+    {
+        public CourseFolderSnapshot Read(ImportCourseCommand command)
+        {
+            ArgumentNullException.ThrowIfNull(command);
+
+            throw exception;
+        }
+    }
+
     private sealed class FakeStudyLibraryRepository : IStudyLibraryRepository
     {
         private readonly StudyLibrarySnapshot _snapshot;
@@ -88,12 +182,14 @@ public sealed class CatalogViewModelTests
 
         public StudyLibrarySnapshot Load()
         {
-            return _snapshot;
+            return SavedSnapshot ?? _snapshot;
         }
 
         public void Save(StudyLibrarySnapshot snapshot)
         {
-            throw new NotSupportedException();
+            SavedSnapshot = snapshot;
         }
+
+        public StudyLibrarySnapshot? SavedSnapshot { get; private set; }
     }
 }

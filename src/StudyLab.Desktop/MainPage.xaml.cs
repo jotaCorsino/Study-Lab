@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using StudyLab.Desktop.Presentation.Catalog;
 
 namespace StudyLab.Desktop;
@@ -6,17 +7,39 @@ namespace StudyLab.Desktop;
 public sealed partial class MainPage : Page
 {
     public MainPage()
-        : this(DesktopCompositionRoot.CreateCatalogViewModel())
     {
+        InitializeComponent();
     }
 
-    internal MainPage(CatalogViewModel viewModel)
+    public CatalogViewModel? ViewModel { get; private set; }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
-        ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-        InitializeComponent();
+        if (e.Parameter is not CatalogViewModel viewModel)
+        {
+            throw new InvalidOperationException("MainPage requires a catalog view model.");
+        }
+
+        ViewModel = viewModel;
         DataContext = ViewModel;
         ViewModel.Load();
     }
 
-    public CatalogViewModel ViewModel { get; }
+    private async void ImportCourseButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        ImportCourseButton.IsEnabled = false;
+        try
+        {
+            await ViewModel.ImportCourseAsync();
+        }
+        finally
+        {
+            ImportCourseButton.IsEnabled = true;
+        }
+    }
 }

@@ -8,24 +8,46 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
-    <Grid Padding="32" RowSpacing="24">
+    <Grid Padding="32" RowSpacing="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Spacing="6">
-            <TextBlock
-                FontSize="28"
-                FontWeight="SemiBold"
-                Text="Catalogo" />
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="{Binding CourseCountText}" />
-        </StackPanel>
+        <CommandBar
+            DefaultLabelPosition="Right"
+            IsDynamicOverflowEnabled="True">
+            <CommandBar.Content>
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        FontSize="28"
+                        FontWeight="SemiBold"
+                        Text="Catalogo" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding CourseCountText}" />
+                </StackPanel>
+            </CommandBar.Content>
+            <AppBarButton
+                x:Name="ImportCourseButton"
+                AutomationProperties.Name="Importar curso"
+                Click="ImportCourseButton_Click"
+                Label="Importar curso">
+                <AppBarButton.Icon>
+                    <SymbolIcon Symbol="OpenFile" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+        </CommandBar>
+
+        <InfoBar
+            Grid.Row="1"
+            IsOpen="True"
+            Message="{Binding StatusMessage}"
+            Severity="Informational" />
 
         <ListView
-            Grid.Row="1"
+            Grid.Row="2"
             ItemsSource="{Binding Courses}"
             SelectionMode="None">
             <ListView.ItemTemplate>

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using global::StudyLab.Application.Courses.Importing;
 using global::StudyLab.Application.Persistence;
 
 namespace StudyLab.Desktop.Presentation.Catalog;
@@ -8,10 +9,25 @@ namespace StudyLab.Desktop.Presentation.Catalog;
 public sealed class CatalogViewModel : INotifyPropertyChanged
 {
     private readonly LoadStudyLibraryUseCase _loadStudyLibrary;
+    private readonly ImportCourseToLibraryUseCase _importCourseToLibrary;
+    private readonly ICourseFolderPicker _folderPicker;
+    private readonly Func<Guid> _newCourseId;
+    private readonly Func<DateTimeOffset> _getImportedAt;
+    private bool _isImporting;
+    private string _statusMessage = "Pronto para importar cursos";
 
-    public CatalogViewModel(LoadStudyLibraryUseCase loadStudyLibrary)
+    public CatalogViewModel(
+        LoadStudyLibraryUseCase loadStudyLibrary,
+        ImportCourseToLibraryUseCase importCourseToLibrary,
+        ICourseFolderPicker folderPicker,
+        Func<Guid>? newCourseId = null,
+        Func<DateTimeOffset>? getImportedAt = null)
     {
         _loadStudyLibrary = loadStudyLibrary ?? throw new ArgumentNullException(nameof(loadStudyLibrary));
+        _importCourseToLibrary = importCourseToLibrary ?? throw new ArgumentNullException(nameof(importCourseToLibrary));
+        _folderPicker = folderPicker ?? throw new ArgumentNullException(nameof(folderPicker));
+        _newCourseId = newCourseId ?? Guid.NewGuid;
+        _getImportedAt = getImportedAt ?? (() => DateTimeOffset.UtcNow);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -19,6 +35,36 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
     public ObservableCollection<CatalogCourseViewModel> Courses { get; } = [];
 
     public bool HasCourses => Courses.Count > 0;
+
+    public bool IsImporting
+    {
+        get => _isImporting;
+        private set
+        {
+            if (_isImporting == value)
+            {
+                return;
+            }
+
+            _isImporting = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        private set
+        {
+            if (string.Equals(_statusMessage, value, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _statusMessage = value;
+            OnPropertyChanged();
+        }
+    }
 
     public string CourseCountText => Courses.Count switch
     {
@@ -39,6 +85,53 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(nameof(HasCourses));
         OnPropertyChanged(nameof(CourseCountText));
+    }
+
+    public async Task ImportCourseAsync()
+    {
+        if (IsImporting)
+        {
+            return;
+        }
+
+        try
+        {
+            IsImporting = true;
+            StatusMessage = "Selecionando pasta do curso";
+
+            string? selectedPath = await _folderPicker.PickFolderAsync();
+            if (string.IsNullOrWhiteSpace(selectedPath))
+            {
+                StatusMessage = "Importacao cancelada";
+                return;
+            }
+
+            CourseLibraryImportResult result = _importCourseToLibrary.Import(new ImportCourseToLibraryCommand(
+                selectedPath,
+                _newCourseId(),
+                _getImportedAt()));
+
+            Load();
+            StatusMessage = result.RejectedFiles.Count == 0
+                ? "Curso importado com sucesso"
+                : $"Curso importado com {result.RejectedFiles.Count} arquivos ignorados";
+        }
+        catch (Exception exception) when (IsSafeImportFailure(exception))
+        {
+            StatusMessage = "Nao foi possivel importar o curso selecionado.";
+        }
+        finally
+        {
+            IsImporting = false;
+        }
+    }
+
+    private static bool IsSafeImportFailure(Exception exception)
+    {
+        return exception is ArgumentException
+            or IOException
+            or InvalidDataException
+            or UnauthorizedAccessException;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

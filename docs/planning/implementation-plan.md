@@ -80,16 +80,16 @@ Seguranca:
 
 Objetivo: criar shell Windows e fluxo basico de catalogo.
 
-Status: em andamento. O recorte inicial criou o scaffold WinUI oficial, a camada `StudyLab.Desktop.Presentation`, view models testaveis para catalogo e uma tela inicial de catalogo em WinUI. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
+Status: em andamento. O scaffold WinUI, a camada `StudyLab.Desktop.Presentation`, os view models testaveis, o catalogo inicial e o fluxo basico de importacao pela UI ja foram criados. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
 
 Entregas:
 
 - Projeto `StudyLab.Desktop` com WinUI 3. Concluido no recorte inicial.
 - Projeto `StudyLab.Desktop.Presentation` para view models testaveis. Concluido no recorte inicial.
 - Navegacao principal. Iniciada com shell e `MainPage`.
-- Catalogo de cursos. Iniciado com listagem somente leitura a partir de `IStudyLibraryRepository`.
-- Tela de criacao/importacao.
-- View models testaveis.
+- Catalogo de cursos. Iniciado com listagem e atualizacao apos importacao.
+- Tela de criacao/importacao. Iniciada com `FolderPicker` controlado e persistencia no catalogo.
+- View models testaveis. Iniciados em `StudyLab.Desktop.Presentation`.
 
 Seguranca:
 

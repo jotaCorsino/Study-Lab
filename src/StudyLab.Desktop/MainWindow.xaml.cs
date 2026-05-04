@@ -12,6 +12,6 @@ public sealed partial class MainWindow : Window
         SetTitleBar(AppTitleBar);
 
         AppWindow.SetIcon("Assets/AppIcon.ico");
-        RootFrame.Navigate(typeof(MainPage));
+        RootFrame.Navigate(typeof(MainPage), DesktopCompositionRoot.CreateCatalogViewModel(this));
     }
 }
