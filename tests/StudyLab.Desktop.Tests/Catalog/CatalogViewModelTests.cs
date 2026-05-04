@@ -84,6 +84,37 @@ public sealed class CatalogViewModelTests
     }
 
     [Fact]
+    public async Task ImportCourseAsyncShowsRejectedFilesWithSafeRelativeLocations()
+    {
+        FakeStudyLibraryRepository repository = new();
+        CatalogViewModel viewModel = CreateViewModel(
+            repository,
+            new FakeCourseFolderReader(new CourseFolderSnapshot(
+                "Curso C#",
+                [new CourseFileCandidate("Modulo/Aula 01.mp4")],
+                [
+                    new RejectedCourseFile("Modulo/Anotacoes.txt", CourseFileRejectionReason.UnsupportedExtension),
+                    new RejectedCourseFile("Modulo/Atalho.lnk", CourseFileRejectionReason.ReparsePointNotAllowed)
+                ])),
+            new FakeCourseFolderPicker("D:/Courses/CSharp"));
+
+        await viewModel.ImportCourseAsync();
+
+        Assert.True(viewModel.HasRejectedFiles);
+        Assert.Equal("2 arquivos ignorados", viewModel.RejectedFilesSummary);
+        Assert.Equal("Curso importado com 2 arquivos ignorados", viewModel.StatusMessage);
+
+        RejectedCourseFileViewModel firstRejectedFile = viewModel.RejectedFiles[0];
+        Assert.Equal("Modulo/Anotacoes.txt", firstRejectedFile.Location);
+        Assert.Equal("Extensao nao suportada", firstRejectedFile.ReasonText);
+        Assert.DoesNotContain("D:/Courses/CSharp", firstRejectedFile.Location, StringComparison.OrdinalIgnoreCase);
+
+        RejectedCourseFileViewModel secondRejectedFile = viewModel.RejectedFiles[1];
+        Assert.Equal("Modulo/Atalho.lnk", secondRejectedFile.Location);
+        Assert.Equal("Atalho ou link nao permitido", secondRejectedFile.ReasonText);
+    }
+
+    [Fact]
     public async Task ImportCourseAsyncUsesSafeErrorMessageWhenImportFails()
     {
         FakeStudyLibraryRepository repository = new();
@@ -96,7 +127,21 @@ public sealed class CatalogViewModelTests
 
         Assert.Equal("Nao foi possivel importar o curso selecionado.", viewModel.StatusMessage);
         Assert.DoesNotContain("D:/Courses/Private", viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.False(viewModel.HasRejectedFiles);
+        Assert.Empty(viewModel.RejectedFiles);
         Assert.False(viewModel.IsImporting);
+    }
+
+    [Fact]
+    public void RejectedCourseFileViewModelDoesNotExposeLocalRootPath()
+    {
+        string[] publicPropertyNames = typeof(RejectedCourseFileViewModel)
+            .GetProperties()
+            .Select(property => property.Name)
+            .ToArray();
+
+        Assert.DoesNotContain(publicPropertyNames, property => property.Contains("Root", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(publicPropertyNames, property => property.Contains("Absolute", StringComparison.OrdinalIgnoreCase));
     }
 
     private static CourseCatalogEntry CreateCourse(string title, int lessonCount)

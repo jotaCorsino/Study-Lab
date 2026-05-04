@@ -14,13 +14,24 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-04.
 - Fase atual: Fase 4 - App desktop e catalogo.
-- Status da fase: em andamento, com navegacao para detalhe do curso concluida neste recorte.
-- Ultima implementacao concluida: tela de detalhes do curso com arvore da estrutura importada.
-- Commit publicado mais recente antes desta etapa: `844bab6 feat: add course import from desktop`.
+- Status da fase: em andamento, com resumo seguro de arquivos rejeitados concluido neste recorte.
+- Ultima implementacao concluida: resumo de arquivos rejeitados da importacao no catalogo.
+- Commit publicado mais recente antes desta etapa: `03e3844 feat: add course detail navigation`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Resumo de arquivos rejeitados:
+
+- `RejectedCourseFileViewModel` criado em `StudyLab.Desktop.Presentation` para projetar caminho relativo e motivo amigavel.
+- `CatalogViewModel` passou a manter `RejectedFiles`, `HasRejectedFiles` e `RejectedFilesSummary` apos importacao.
+- `MainPage` recebeu `InfoBar` de aviso com lista dos arquivos ignorados pela importacao.
+- O painel mostra apenas `RejectedCourseFile.RelativePath`, que ja e normalizado e bloqueia raiz absoluta/traversal.
+- Falha ou cancelamento de importacao limpa a lista de rejeicoes para evitar informacao obsoleta na UI.
+- Testes garantem resumo, motivos amigaveis e ausencia de propriedades de raiz/caminho absoluto no view model de rejeicao.
+
+## Historico imediato
 
 Tela de detalhes do curso:
 
@@ -32,8 +43,6 @@ Tela de detalhes do curso:
 - `DesktopCompositionRoot` passou a criar view models de catalogo e detalhe usando o mesmo caminho local de biblioteca.
 - A UI continua sem regra de negocio; o code-behind apenas navega e materializa a arvore visual a partir do view model.
 - Caminhos absolutos locais continuam fora da tela de catalogo e da tela de detalhe.
-
-## Historico imediato
 
 Importacao basica pela UI:
 
@@ -105,7 +114,6 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- exibir arquivos rejeitados da importacao sem vazar caminhos sensiveis alem dos relativos ja sanitizados;
 - avaliar tratamento de duplicidade quando a mesma pasta for importada novamente;
 - ajustar verificacao de solucao para builds WinUI com plataforma x64;
 - manter UI sem regra de negocio e com view models testaveis.
@@ -113,7 +121,6 @@ Continuar a Fase 4 - App desktop e catalogo:
 ## Pendencias praticas
 
 - Ajustar a estrategia de verificacao por `.slnx`: `dotnet test .\StudyLab.slnx -p:Platform=x64` retornou configuracao de solucao invalida `Debug|x64`.
-- Exibir resumo de arquivos rejeitados apos importacao.
 - Definir regra para reimportacao/duplicidade de cursos.
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
@@ -128,6 +135,7 @@ Continuar a Fase 4 - App desktop e catalogo:
 - View models desktop ficam em `StudyLab.Desktop.Presentation` para evitar acoplamento de testes ao runtime WinUI.
 - Dialogo de selecao de pasta fica isolado atras de `ICourseFolderPicker`; a implementacao WinUI inicial usa `FolderPicker` com HWND da janela.
 - Detalhe do curso usa um caso de uso especifico que nao retorna `RootPath`; caminhos absolutos locais nao entram no view model.
+- Rejeicoes de importacao sao exibidas no catalogo apenas com caminho relativo normalizado e motivo amigavel.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -148,12 +156,13 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Red de TDD confirmado para Presentation: `ICourseFolderPicker` e fluxo `ImportCourseAsync` ausentes.
 - Red de TDD confirmado para detalhe Application: `LoadCourseDetailUseCase`, `CourseDetail` e `CourseDetailItem` ausentes.
 - Red de TDD confirmado para detalhe Presentation: `CourseDetailViewModel` ausente.
+- Red de TDD confirmado para resumo de rejeicoes Presentation: `RejectedCourseFileViewModel`, `RejectedFiles`, `HasRejectedFiles` e `RejectedFilesSummary` ausentes.
 - `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 12 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 9 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 11 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\src\StudyLab.Desktop\StudyLab.Desktop.csproj -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a tela de detalhe.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos o resumo de rejeicoes.
 - `dotnet test .\StudyLab.slnx -p:Platform=x64` nao passou por configuracao de solucao invalida `Debug|x64`; usar testes por projeto ate ajustar a solucao.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 

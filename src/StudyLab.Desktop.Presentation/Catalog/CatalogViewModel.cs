@@ -34,7 +34,18 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
 
     public ObservableCollection<CatalogCourseViewModel> Courses { get; } = [];
 
+    public ObservableCollection<RejectedCourseFileViewModel> RejectedFiles { get; } = [];
+
     public bool HasCourses => Courses.Count > 0;
+
+    public bool HasRejectedFiles => RejectedFiles.Count > 0;
+
+    public string RejectedFilesSummary => RejectedFiles.Count switch
+    {
+        0 => "Nenhum arquivo ignorado",
+        1 => "1 arquivo ignorado",
+        _ => $"{RejectedFiles.Count} arquivos ignorados"
+    };
 
     public bool IsImporting
     {
@@ -102,6 +113,7 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
             string? selectedPath = await _folderPicker.PickFolderAsync();
             if (string.IsNullOrWhiteSpace(selectedPath))
             {
+                ClearRejectedFiles();
                 StatusMessage = "Importacao cancelada";
                 return;
             }
@@ -112,12 +124,14 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
                 _getImportedAt()));
 
             Load();
+            UpdateRejectedFiles(result.RejectedFiles);
             StatusMessage = result.RejectedFiles.Count == 0
                 ? "Curso importado com sucesso"
                 : $"Curso importado com {result.RejectedFiles.Count} arquivos ignorados";
         }
         catch (Exception exception) when (IsSafeImportFailure(exception))
         {
+            ClearRejectedFiles();
             StatusMessage = "Nao foi possivel importar o curso selecionado.";
         }
         finally
@@ -132,6 +146,30 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
             or IOException
             or InvalidDataException
             or UnauthorizedAccessException;
+    }
+
+    private void UpdateRejectedFiles(IEnumerable<RejectedCourseFile> rejectedFiles)
+    {
+        RejectedFiles.Clear();
+        foreach (RejectedCourseFileViewModel rejectedFile in rejectedFiles.Select(RejectedCourseFileViewModel.FromRejectedFile))
+        {
+            RejectedFiles.Add(rejectedFile);
+        }
+
+        OnPropertyChanged(nameof(HasRejectedFiles));
+        OnPropertyChanged(nameof(RejectedFilesSummary));
+    }
+
+    private void ClearRejectedFiles()
+    {
+        if (RejectedFiles.Count == 0)
+        {
+            return;
+        }
+
+        RejectedFiles.Clear();
+        OnPropertyChanged(nameof(HasRejectedFiles));
+        OnPropertyChanged(nameof(RejectedFilesSummary));
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -46,9 +47,40 @@
             Message="{Binding StatusMessage}"
             Severity="Informational" />
 
+        <InfoBar
+            Grid.Row="2"
+            AutomationProperties.Name="Arquivos ignorados na importacao"
+            IsOpen="{Binding HasRejectedFiles}"
+            Message="Itens ignorados nao foram adicionados ao catalogo."
+            Severity="Warning"
+            Title="{Binding RejectedFilesSummary}">
+            <ListView
+                MaxHeight="180"
+                ItemsSource="{Binding RejectedFiles}"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="0,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                FontWeight="SemiBold"
+                                Text="{Binding Location}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{Binding ReasonText}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </InfoBar>
+
         <ListView
             x:Name="CourseListView"
-            Grid.Row="2"
+            Grid.Row="3"
             AutomationProperties.Name="Cursos importados"
             IsItemClickEnabled="True"
             ItemsSource="{Binding Courses}"
