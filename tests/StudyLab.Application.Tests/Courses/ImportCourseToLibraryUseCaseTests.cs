@@ -39,6 +39,8 @@ public sealed class ImportCourseToLibraryUseCaseTests
         Assert.Equal("Curso C#", importedCourse.Title);
         Assert.Equal("D:/Courses/CSharp", importedCourse.RootPath);
         Assert.Equal(importedAt, importedCourse.ImportedAt);
+        Assert.True(result.WasImported);
+        Assert.Equal(CourseLibraryImportStatus.Imported, result.Status);
         Assert.Same(rejectedFile, Assert.Single(result.RejectedFiles));
 
         CourseCatalogItem module = Assert.Single(importedCourse.Items);
@@ -46,6 +48,32 @@ public sealed class ImportCourseToLibraryUseCaseTests
         CourseCatalogItem lesson = Assert.Single(module.Children);
         Assert.Equal(CourseCatalogItemType.Lesson, lesson.Type);
         Assert.Equal("Modulo/Aula 01.mp4", lesson.RelativePath);
+    }
+
+    [Fact]
+    public void ImportSkipsDuplicateCourseRootWithoutReadingOrSavingAgain()
+    {
+        CourseCatalogEntry existingCourse = new(
+            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "Curso C#",
+            "D:/Courses/CSharp",
+            [],
+            DateTimeOffset.Parse("2026-05-01T10:00:00Z", CultureInfo.InvariantCulture));
+        FakeStudyLibraryRepository repository = new(new StudyLibrarySnapshot([existingCourse], [], StudyPreferences.Default));
+        CountingCourseFolderReader reader = new();
+        ImportCourseToLibraryUseCase useCase = new(new ImportCourseFromFolderUseCase(reader), repository);
+
+        CourseLibraryImportResult result = useCase.Import(new ImportCourseToLibraryCommand(
+            "d:/courses/csharp/",
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            DateTimeOffset.Parse("2026-05-04T10:00:00Z", CultureInfo.InvariantCulture)));
+
+        Assert.Same(existingCourse, result.Course);
+        Assert.False(result.WasImported);
+        Assert.Equal(CourseLibraryImportStatus.DuplicateSkipped, result.Status);
+        Assert.Empty(result.RejectedFiles);
+        Assert.Null(repository.SavedSnapshot);
+        Assert.Equal(0, reader.ReadCount);
     }
 
     [Fact]
@@ -72,6 +100,19 @@ public sealed class ImportCourseToLibraryUseCaseTests
             ArgumentNullException.ThrowIfNull(command);
 
             return snapshot;
+        }
+    }
+
+    private sealed class CountingCourseFolderReader : ICourseFolderReader
+    {
+        public int ReadCount { get; private set; }
+
+        public CourseFolderSnapshot Read(ImportCourseCommand command)
+        {
+            ArgumentNullException.ThrowIfNull(command);
+
+            ReadCount++;
+            return new CourseFolderSnapshot("Curso C#", [], []);
         }
     }
 

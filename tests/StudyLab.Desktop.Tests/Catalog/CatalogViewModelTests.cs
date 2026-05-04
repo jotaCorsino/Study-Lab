@@ -115,6 +115,27 @@ public sealed class CatalogViewModelTests
     }
 
     [Fact]
+    public async Task ImportCourseAsyncShowsDuplicateMessageWhenFolderAlreadyExists()
+    {
+        CourseCatalogEntry existingCourse = CreateCourse("Curso C#", lessonCount: 1, rootPath: "D:/Courses/CSharp");
+        FakeStudyLibraryRepository repository = new(new StudyLibrarySnapshot([existingCourse], [], StudyPreferences.Default));
+        CatalogViewModel viewModel = CreateViewModel(
+            repository,
+            new ThrowingCourseFolderReader(new InvalidOperationException("Reader should not be called for duplicate roots.")),
+            new FakeCourseFolderPicker("d:/courses/csharp/"));
+
+        await viewModel.ImportCourseAsync();
+
+        Assert.Null(repository.SavedSnapshot);
+        CatalogCourseViewModel course = Assert.Single(viewModel.Courses);
+        Assert.Equal(existingCourse.Id, course.Id);
+        Assert.Equal("Curso ja importado", viewModel.StatusMessage);
+        Assert.False(viewModel.HasRejectedFiles);
+        Assert.Empty(viewModel.RejectedFiles);
+        Assert.False(viewModel.IsImporting);
+    }
+
+    [Fact]
     public async Task ImportCourseAsyncUsesSafeErrorMessageWhenImportFails()
     {
         FakeStudyLibraryRepository repository = new();
@@ -144,7 +165,7 @@ public sealed class CatalogViewModelTests
         Assert.DoesNotContain(publicPropertyNames, property => property.Contains("Absolute", StringComparison.OrdinalIgnoreCase));
     }
 
-    private static CourseCatalogEntry CreateCourse(string title, int lessonCount)
+    private static CourseCatalogEntry CreateCourse(string title, int lessonCount, string rootPath = "D:/Courses/CSharp")
     {
         CourseCatalogItem[] lessons = Enumerable.Range(1, lessonCount)
             .Select(index => new CourseCatalogItem(
@@ -163,7 +184,7 @@ public sealed class CatalogViewModelTests
         return new CourseCatalogEntry(
             Guid.NewGuid(),
             title,
-            "D:/Courses/CSharp",
+            rootPath,
             [module],
             DateTimeOffset.Parse("2026-04-28T12:00:00Z", CultureInfo.InvariantCulture));
     }

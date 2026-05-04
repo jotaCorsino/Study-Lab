@@ -14,13 +14,25 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-04.
 - Fase atual: Fase 4 - App desktop e catalogo.
-- Status da fase: em andamento, com resumo seguro de arquivos rejeitados concluido neste recorte.
-- Ultima implementacao concluida: resumo de arquivos rejeitados da importacao no catalogo.
-- Commit publicado mais recente antes desta etapa: `03e3844 feat: add course detail navigation`.
+- Status da fase: em andamento, com regra de duplicidade de importacao concluida neste recorte.
+- Ultima implementacao concluida: bloqueio de reimportacao da mesma pasta de curso.
+- Commit publicado mais recente antes desta etapa: `86612b8 feat: show rejected import files`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Regra de duplicidade de importacao:
+
+- `CourseLibraryImportStatus` criado para diferenciar importacao nova de duplicidade ignorada.
+- `CourseLibraryImportResult` passou a expor `Status` e `WasImported`.
+- `ImportCourseToLibraryUseCase` agora carrega o snapshot antes de ler arquivos e compara a raiz selecionada com as raizes ja importadas.
+- A comparacao de duplicidade normaliza a raiz com `Path.GetFullPath`, remove separador final e usa comparacao case-insensitive, adequada ao alvo Windows.
+- Quando a pasta ja existe no catalogo, o caso de uso retorna o curso existente, nao chama `ICourseFolderReader` e nao salva novo snapshot.
+- `CatalogViewModel` mostra "Curso ja importado", recarrega o catalogo e limpa rejeicoes obsoletas quando a duplicidade e detectada.
+- Testes cobrem que a reimportacao nao reler arquivos, nao salva duplicado e mantem a UI sem erro generico.
+
+## Historico imediato
 
 Resumo de arquivos rejeitados:
 
@@ -30,8 +42,6 @@ Resumo de arquivos rejeitados:
 - O painel mostra apenas `RejectedCourseFile.RelativePath`, que ja e normalizado e bloqueia raiz absoluta/traversal.
 - Falha ou cancelamento de importacao limpa a lista de rejeicoes para evitar informacao obsoleta na UI.
 - Testes garantem resumo, motivos amigaveis e ausencia de propriedades de raiz/caminho absoluto no view model de rejeicao.
-
-## Historico imediato
 
 Tela de detalhes do curso:
 
@@ -114,14 +124,13 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- avaliar tratamento de duplicidade quando a mesma pasta for importada novamente;
 - ajustar verificacao de solucao para builds WinUI com plataforma x64;
+- avaliar se a Fase 4 ja pode ser encerrada e preparar a entrada da Fase 5 - player e progresso;
 - manter UI sem regra de negocio e com view models testaveis.
 
 ## Pendencias praticas
 
 - Ajustar a estrategia de verificacao por `.slnx`: `dotnet test .\StudyLab.slnx -p:Platform=x64` retornou configuracao de solucao invalida `Debug|x64`.
-- Definir regra para reimportacao/duplicidade de cursos.
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
 
@@ -136,6 +145,7 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Dialogo de selecao de pasta fica isolado atras de `ICourseFolderPicker`; a implementacao WinUI inicial usa `FolderPicker` com HWND da janela.
 - Detalhe do curso usa um caso de uso especifico que nao retorna `RootPath`; caminhos absolutos locais nao entram no view model.
 - Rejeicoes de importacao sao exibidas no catalogo apenas com caminho relativo normalizado e motivo amigavel.
+- Reimportacao da mesma pasta e tratada como duplicidade ignorada antes de ler o filesystem.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -157,12 +167,13 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Red de TDD confirmado para detalhe Application: `LoadCourseDetailUseCase`, `CourseDetail` e `CourseDetailItem` ausentes.
 - Red de TDD confirmado para detalhe Presentation: `CourseDetailViewModel` ausente.
 - Red de TDD confirmado para resumo de rejeicoes Presentation: `RejectedCourseFileViewModel`, `RejectedFiles`, `HasRejectedFiles` e `RejectedFilesSummary` ausentes.
-- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 12 testes aprovados.
+- Red de TDD confirmado para duplicidade: `CourseLibraryImportStatus`, `Status`, `WasImported` ausentes e leitor ainda chamado na reimportacao.
+- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 13 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 11 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 12 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\src\StudyLab.Desktop\StudyLab.Desktop.csproj -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos o resumo de rejeicoes.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a regra de duplicidade.
 - `dotnet test .\StudyLab.slnx -p:Platform=x64` nao passou por configuracao de solucao invalida `Debug|x64`; usar testes por projeto ate ajustar a solucao.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 

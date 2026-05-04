@@ -19,6 +19,17 @@ public sealed class ImportCourseToLibraryUseCase
     {
         ArgumentNullException.ThrowIfNull(command);
 
+        StudyLibrarySnapshot currentSnapshot = _repository.Load();
+        CourseCatalogEntry? existingCourse = currentSnapshot.Courses
+            .FirstOrDefault(course => HasSameRootPath(course.RootPath, command.RootPath));
+        if (existingCourse is not null)
+        {
+            return new CourseLibraryImportResult(
+                existingCourse,
+                [],
+                CourseLibraryImportStatus.DuplicateSkipped);
+        }
+
         CourseImportResult importResult = _importCourseFromFolder.Import(new ImportCourseCommand(command.RootPath));
         CourseCatalogEntry course = new(
             command.CourseId,
@@ -27,7 +38,6 @@ public sealed class ImportCourseToLibraryUseCase
             importResult.Course.Items.Select(ToCatalogItem),
             command.ImportedAt);
 
-        StudyLibrarySnapshot currentSnapshot = _repository.Load();
         StudyLibrarySnapshot updatedSnapshot = new(
             currentSnapshot.Courses.Concat([course]),
             currentSnapshot.Progress,
@@ -52,5 +62,19 @@ public sealed class ImportCourseToLibraryUseCase
             item.Title,
             item.RelativePath,
             item.Children.Select(ToCatalogItem));
+    }
+
+    private static bool HasSameRootPath(string left, string right)
+    {
+        return string.Equals(
+            NormalizeRootPath(left),
+            NormalizeRootPath(right),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeRootPath(string rootPath)
+    {
+        return Path.TrimEndingDirectorySeparator(Path.GetFullPath(rootPath))
+            .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
     }
 }

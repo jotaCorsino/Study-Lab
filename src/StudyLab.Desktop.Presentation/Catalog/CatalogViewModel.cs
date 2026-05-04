@@ -125,9 +125,12 @@ public sealed class CatalogViewModel : INotifyPropertyChanged
 
             Load();
             UpdateRejectedFiles(result.RejectedFiles);
-            StatusMessage = result.RejectedFiles.Count == 0
-                ? "Curso importado com sucesso"
-                : $"Curso importado com {result.RejectedFiles.Count} arquivos ignorados";
+            StatusMessage = result.Status switch
+            {
+                CourseLibraryImportStatus.DuplicateSkipped => "Curso ja importado",
+                _ when result.RejectedFiles.Count == 0 => "Curso importado com sucesso",
+                _ => $"Curso importado com {result.RejectedFiles.Count} arquivos ignorados"
+            };
         }
         catch (Exception exception) when (IsSafeImportFailure(exception))
         {
