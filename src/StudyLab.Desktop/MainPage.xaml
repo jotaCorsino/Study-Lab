@@ -47,8 +47,12 @@
             Severity="Informational" />
 
         <ListView
+            x:Name="CourseListView"
             Grid.Row="2"
+            AutomationProperties.Name="Cursos importados"
+            IsItemClickEnabled="True"
             ItemsSource="{Binding Courses}"
+            ItemClick="CourseListView_ItemClick"
             SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate>

@@ -14,13 +14,26 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-04.
 - Fase atual: Fase 4 - App desktop e catalogo.
-- Status da fase: em andamento, com importacao basica pela UI concluida neste recorte.
-- Ultima implementacao concluida: fluxo de importacao pela UI com persistencia no catalogo local.
-- Commit publicado mais recente antes desta etapa: `e67caa0 feat: add winui catalog shell`.
+- Status da fase: em andamento, com navegacao para detalhe do curso concluida neste recorte.
+- Ultima implementacao concluida: tela de detalhes do curso com arvore da estrutura importada.
+- Commit publicado mais recente antes desta etapa: `844bab6 feat: add course import from desktop`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Tela de detalhes do curso:
+
+- `LoadCourseDetailUseCase` criado em Application para carregar um curso por id sem expor `RootPath` na superficie de detalhe.
+- `CourseDetail` e `CourseDetailItem` criados para representar titulo, data de importacao, contagem de aulas e arvore importada.
+- `CourseDetailViewModel` e `CourseDetailItemViewModel` criados em `StudyLab.Desktop.Presentation` com testes unitarios e sem propriedades de caminho local.
+- `MainPage` passou a permitir clique em curso e navegar para `CourseDetailPage`.
+- `CourseDetailPage` criada em WinUI com `CommandBar`, botao voltar, `InfoBar` e `TreeView` para inspecionar a estrutura importada.
+- `DesktopCompositionRoot` passou a criar view models de catalogo e detalhe usando o mesmo caminho local de biblioteca.
+- A UI continua sem regra de negocio; o code-behind apenas navega e materializa a arvore visual a partir do view model.
+- Caminhos absolutos locais continuam fora da tela de catalogo e da tela de detalhe.
+
+## Historico imediato
 
 Importacao basica pela UI:
 
@@ -33,8 +46,6 @@ Importacao basica pela UI:
 - `MainPage` recebeu `CommandBar` com acao "Importar curso" e `InfoBar` de status.
 - Erros esperados de importacao retornam mensagem generica sem caminho local ou stack trace.
 - A UI continua sem regra de negocio; o code-behind apenas chama o view model e desabilita o botao durante a operacao.
-
-## Historico imediato
 
 App desktop e catalogo inicial:
 
@@ -94,7 +105,6 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- criar navegacao/tela de detalhes do curso para inspecionar a estrutura importada;
 - exibir arquivos rejeitados da importacao sem vazar caminhos sensiveis alem dos relativos ja sanitizados;
 - avaliar tratamento de duplicidade quando a mesma pasta for importada novamente;
 - ajustar verificacao de solucao para builds WinUI com plataforma x64;
@@ -103,7 +113,6 @@ Continuar a Fase 4 - App desktop e catalogo:
 ## Pendencias praticas
 
 - Ajustar a estrategia de verificacao por `.slnx`: `dotnet test .\StudyLab.slnx -p:Platform=x64` retornou configuracao de solucao invalida `Debug|x64`.
-- Criar tela de detalhes do curso e navegacao a partir do catalogo.
 - Exibir resumo de arquivos rejeitados apos importacao.
 - Definir regra para reimportacao/duplicidade de cursos.
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
@@ -118,6 +127,7 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Empacotamento inicial definido como single-project MSIX packaged; assinatura/distribuicao ainda pendentes para release.
 - View models desktop ficam em `StudyLab.Desktop.Presentation` para evitar acoplamento de testes ao runtime WinUI.
 - Dialogo de selecao de pasta fica isolado atras de `ICourseFolderPicker`; a implementacao WinUI inicial usa `FolderPicker` com HWND da janela.
+- Detalhe do curso usa um caso de uso especifico que nao retorna `RootPath`; caminhos absolutos locais nao entram no view model.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -134,14 +144,16 @@ Continuar a Fase 4 - App desktop e catalogo:
 - `dotnet new install Microsoft.WindowsAppSDK.WinUI.CSharp.Templates` instalou templates WinUI.
 - Red de TDD confirmado com `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj -p:Platform=x64`: namespace `StudyLab.Desktop.Catalog` inexistente.
 - Teste unitario desktop inicialmente falhou ao referenciar diretamente a assembly WinUI por inicializacao COM do Windows App SDK; a correcao foi separar view models em `StudyLab.Desktop.Presentation`.
-- `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - Red de TDD confirmado para Application: `ImportCourseToLibraryUseCase`, `CourseLibraryImportResult` e `ImportCourseToLibraryCommand` ausentes.
 - Red de TDD confirmado para Presentation: `ICourseFolderPicker` e fluxo `ImportCourseAsync` ausentes.
-- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 9 testes aprovados.
+- Red de TDD confirmado para detalhe Application: `LoadCourseDetailUseCase`, `CourseDetail` e `CourseDetailItem` ausentes.
+- Red de TDD confirmado para detalhe Presentation: `CourseDetailViewModel` ausente.
+- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 12 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 6 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 9 testes aprovados.
+- `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\src\StudyLab.Desktop\StudyLab.Desktop.csproj -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab`.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a tela de detalhe.
 - `dotnet test .\StudyLab.slnx -p:Platform=x64` nao passou por configuracao de solucao invalida `Debug|x64`; usar testes por projeto ate ajustar a solucao.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 

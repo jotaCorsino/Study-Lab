@@ -11,17 +11,29 @@ internal static class DesktopCompositionRoot
 {
     public static CatalogViewModel CreateCatalogViewModel(Window owner)
     {
-        string libraryPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "StudyLab",
-            "library.json");
-
-        IStudyLibraryRepository repository = new JsonStudyLibraryRepository(libraryPath);
+        IStudyLibraryRepository repository = CreateRepository();
         LocalCourseFolderReader reader = new();
 
         return new CatalogViewModel(
             new LoadStudyLibraryUseCase(repository),
             new ImportCourseToLibraryUseCase(new ImportCourseFromFolderUseCase(reader), repository),
             new WinUiCourseFolderPicker(owner));
+    }
+
+    public static CourseDetailViewModel CreateCourseDetailViewModel(Guid courseId)
+    {
+        return new CourseDetailViewModel(
+            new LoadCourseDetailUseCase(CreateRepository()),
+            courseId);
+    }
+
+    private static JsonStudyLibraryRepository CreateRepository()
+    {
+        string libraryPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "StudyLab",
+            "library.json");
+
+        return new JsonStudyLibraryRepository(libraryPath);
     }
 }

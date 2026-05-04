@@ -42,4 +42,14 @@ public sealed partial class MainPage : Page
             ImportCourseButton.IsEnabled = true;
         }
     }
+
+    private void CourseListView_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is not CatalogCourseViewModel course || Frame is null)
+        {
+            return;
+        }
+
+        Frame.Navigate(typeof(CourseDetailPage), DesktopCompositionRoot.CreateCourseDetailViewModel(course.Id));
+    }
 }
