@@ -80,7 +80,7 @@ Seguranca:
 
 Objetivo: criar shell Windows e fluxo basico de catalogo.
 
-Status: em andamento. O scaffold WinUI, a camada `StudyLab.Desktop.Presentation`, os view models testaveis, o catalogo inicial, o fluxo basico de importacao pela UI, o resumo de arquivos rejeitados, a regra de duplicidade de importacao e a tela de detalhes do curso ja foram criados. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
+Status: em andamento. O scaffold WinUI, a camada `StudyLab.Desktop.Presentation`, os view models testaveis, o catalogo inicial, o fluxo basico de importacao pela UI, o resumo de arquivos rejeitados, a regra de duplicidade de importacao, a tela de detalhes do curso e a verificacao de solucao x64 ja foram criados. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
 
 Entregas:
 
@@ -92,6 +92,7 @@ Entregas:
 - Tela de criacao/importacao. Iniciada com `FolderPicker` controlado e persistencia no catalogo.
 - Resumo de arquivos rejeitados. Iniciado no catalogo com caminhos relativos sanitizados e motivos amigaveis.
 - Regra de duplicidade. Iniciada bloqueando reimportacao da mesma raiz de curso.
+- Verificacao por solucao. Ajustada para `StudyLab.slnx` aceitar `x64` e mapear o projeto WinUI para plataforma `x64`.
 - View models testaveis. Iniciados em `StudyLab.Desktop.Presentation`.
 
 Seguranca:

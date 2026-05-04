@@ -14,13 +14,24 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-04.
 - Fase atual: Fase 4 - App desktop e catalogo.
-- Status da fase: em andamento, com regra de duplicidade de importacao concluida neste recorte.
-- Ultima implementacao concluida: bloqueio de reimportacao da mesma pasta de curso.
-- Commit publicado mais recente antes desta etapa: `86612b8 feat: show rejected import files`.
+- Status da fase: em andamento, com verificacao de solucao x64 concluida neste recorte.
+- Ultima implementacao concluida: ajuste de `StudyLab.slnx` para build/test x64.
+- Commit publicado mais recente antes desta etapa: `e7282ca feat: skip duplicate course imports`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Verificacao de solucao x64:
+
+- `StudyLab.slnx` recebeu `<Configurations>` com `Any CPU` e `x64`.
+- O projeto `StudyLab.Desktop` recebeu mapeamento de plataforma no `.slnx` com `<Platform Project="x64" />`.
+- O erro `MSB4126` para `Debug|x64` foi eliminado.
+- `dotnet build .\StudyLab.slnx -p:Platform=x64` agora compila o WinUI em `bin\x64\Debug\...\win-x64` sem avisos ou erros.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64` agora executa todos os projetos de teste da solucao com sucesso.
+- A verificacao por projeto continua valida, mas a solucao agora e o comando principal para a regressao local x64.
+
+## Historico imediato
 
 Regra de duplicidade de importacao:
 
@@ -31,8 +42,6 @@ Regra de duplicidade de importacao:
 - Quando a pasta ja existe no catalogo, o caso de uso retorna o curso existente, nao chama `ICourseFolderReader` e nao salva novo snapshot.
 - `CatalogViewModel` mostra "Curso ja importado", recarrega o catalogo e limpa rejeicoes obsoletas quando a duplicidade e detectada.
 - Testes cobrem que a reimportacao nao reler arquivos, nao salva duplicado e mantem a UI sem erro generico.
-
-## Historico imediato
 
 Resumo de arquivos rejeitados:
 
@@ -124,13 +133,11 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 4 - App desktop e catalogo:
 
 - reler a arvore obrigatoria completa;
-- ajustar verificacao de solucao para builds WinUI com plataforma x64;
 - avaliar se a Fase 4 ja pode ser encerrada e preparar a entrada da Fase 5 - player e progresso;
 - manter UI sem regra de negocio e com view models testaveis.
 
 ## Pendencias praticas
 
-- Ajustar a estrategia de verificacao por `.slnx`: `dotnet test .\StudyLab.slnx -p:Platform=x64` retornou configuracao de solucao invalida `Debug|x64`.
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
 
@@ -146,6 +153,7 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Detalhe do curso usa um caso de uso especifico que nao retorna `RootPath`; caminhos absolutos locais nao entram no view model.
 - Rejeicoes de importacao sao exibidas no catalogo apenas com caminho relativo normalizado e motivo amigavel.
 - Reimportacao da mesma pasta e tratada como duplicidade ignorada antes de ler o filesystem.
+- `StudyLab.slnx` declara `Any CPU` e `x64`; o projeto WinUI e mapeado para `x64` na verificacao de solucao.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -172,9 +180,9 @@ Continuar a Fase 4 - App desktop e catalogo:
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
 - `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 12 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
-- `dotnet build .\src\StudyLab.Desktop\StudyLab.Desktop.csproj -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a regra de duplicidade.
-- `dotnet test .\StudyLab.slnx -p:Platform=x64` nao passou por configuracao de solucao invalida `Debug|x64`; usar testes por projeto ate ajustar a solucao.
+- `dotnet build .\StudyLab.slnx -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 43 testes aprovados.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a verificacao de solucao x64.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar

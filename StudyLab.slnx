@@ -1,7 +1,13 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
   <Folder Name="/src/">
     <Project Path="src/StudyLab.Application/StudyLab.Application.csproj" />
-    <Project Path="src/StudyLab.Desktop/StudyLab.Desktop.csproj" />
+    <Project Path="src/StudyLab.Desktop/StudyLab.Desktop.csproj">
+      <Platform Project="x64" />
+    </Project>
     <Project Path="src/StudyLab.Desktop.Presentation/StudyLab.Desktop.Presentation.csproj" />
     <Project Path="src/StudyLab.Domain/StudyLab.Domain.csproj" />
     <Project Path="src/StudyLab.Infrastructure/StudyLab.Infrastructure.csproj" />
