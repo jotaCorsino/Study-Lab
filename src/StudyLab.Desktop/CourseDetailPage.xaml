@@ -19,17 +19,17 @@
                 <FontIcon
                     AutomationProperties.AccessibilityView="Raw"
                     FontSize="16"
-                    Glyph="{Binding IconGlyph}"
+                    Glyph="{Binding Content.IconGlyph}"
                     VerticalAlignment="Center" />
 
                 <StackPanel Grid.Column="1" Spacing="2">
                     <TextBlock
                         FontWeight="SemiBold"
-                        Text="{Binding Title}" />
+                        Text="{Binding Content.Title}" />
                     <TextBlock
                         FontSize="12"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Text="{Binding KindText}" />
+                        Text="{Binding Content.KindText}" />
                 </StackPanel>
             </Grid>
         </DataTemplate>

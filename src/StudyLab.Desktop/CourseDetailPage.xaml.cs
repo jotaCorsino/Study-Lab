@@ -36,8 +36,10 @@ public sealed partial class CourseDetailPage : Page
 
     private void CourseTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
     {
+        CourseDetailItemViewModel? item = GetInvokedItem(args.InvokedItem);
+
         if (ViewModel is null ||
-            args.InvokedItem is not CourseDetailItemViewModel item ||
+            item is null ||
             !item.CanOpenLesson ||
             item.LessonId is not Guid lessonId)
         {
@@ -45,6 +47,16 @@ public sealed partial class CourseDetailPage : Page
         }
 
         Frame.Navigate(typeof(LessonPlayerPage), DesktopCompositionRoot.CreateLessonPlayerViewModel(ViewModel.CourseId, lessonId));
+    }
+
+    private static CourseDetailItemViewModel? GetInvokedItem(object? invokedItem)
+    {
+        return invokedItem switch
+        {
+            CourseDetailItemViewModel item => item,
+            TreeViewNode { Content: CourseDetailItemViewModel item } => item,
+            _ => null
+        };
     }
 
     private void RebuildTree()

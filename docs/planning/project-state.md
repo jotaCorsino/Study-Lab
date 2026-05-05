@@ -14,13 +14,24 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-05.
 - Fase atual: Fase 5 - Player e progresso.
-- Status da fase: em andamento, com player local inicial criado neste recorte.
-- Ultima implementacao concluida: base segura de player local e navegacao da aula.
-- Commit publicado mais recente antes desta etapa: `3aa5a6c build: enable x64 solution verification`.
+- Status da fase: em andamento, com correcao do carregamento visual da arvore do curso concluida neste recorte.
+- Ultima implementacao concluida: correcao do binding do `TreeView` da tela de detalhes do curso.
+- Commit publicado mais recente antes desta etapa: `e6512e6 feat: add initial lesson player`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Correcao da arvore visual de detalhes do curso:
+
+- Bug observado: apos importar/criar um curso, a pagina de detalhes carregava o curso, mas os nomes de modulos, aulas e videos nao apareciam na arvore.
+- Causa: `CourseDetailPage` monta a arvore com `TreeViewNode.Content = CourseDetailItemViewModel`, mas o template XAML fazia binding direto em `Title`, `KindText` e `IconGlyph`.
+- Correcao: o template passou a usar `Content.Title`, `Content.KindText` e `Content.IconGlyph`.
+- `CourseTreeView_ItemInvoked` agora tambem entende quando o evento entrega o proprio `TreeViewNode`, mantendo a navegacao para o player.
+- Teste de regressao `CourseDetailPageXamlTests` criado para garantir que o template continue apontando para `TreeViewNode.Content`.
+- A correcao nao altera modelo de dominio, persistencia ou dados locais do usuario.
+
+## Historico imediato
 
 Player local inicial:
 
@@ -31,8 +42,6 @@ Player local inicial:
 - `LessonPlayerViewModel` criado em `StudyLab.Desktop.Presentation` com mensagens seguras para aula ausente ou midia rejeitada.
 - `LessonPlayerPage` criada em WinUI com `MediaPlayerElement`, controles nativos e navegacao a partir do clique em uma aula na arvore de detalhes.
 - A UI continua como adaptador fino: a decisao de qual arquivo pode ser aberto fica no caso de uso de Application.
-
-## Historico imediato
 
 Verificacao de solucao x64:
 
@@ -172,6 +181,7 @@ Continuar a Fase 5 - Player e progresso:
 - Fase 5 iniciou com identidade estavel de aula derivada de `courseId` + caminho relativo.
 - Player local inicial usa `MediaPlayerElement`, mas a resolucao e validacao do arquivo ficam em Application.
 - Erros de player devem continuar sem caminho local, stack trace ou detalhes internos na mensagem exibida.
+- A arvore da tela de detalhes usa `TreeViewNode.Content`; templates XAML devem acessar propriedades via `Content.*`.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -195,13 +205,14 @@ Continuar a Fase 5 - Player e progresso:
 - Red de TDD confirmado para resumo de rejeicoes Presentation: `RejectedCourseFileViewModel`, `RejectedFiles`, `HasRejectedFiles` e `RejectedFilesSummary` ausentes.
 - Red de TDD confirmado para duplicidade: `CourseLibraryImportStatus`, `Status`, `WasImported` ausentes e leitor ainda chamado na reimportacao.
 - Red de TDD confirmado para player inicial: namespaces/classes `StudyLab.Application.Playback` e `StudyLab.Desktop.Presentation.Playback` ausentes antes da implementacao.
+- Red de regressao confirmado para arvore de detalhes: `CourseDetailPageXamlTests.CourseTreeTemplateBindsToTreeViewNodeContent` falhou com bindings antigos sem `Content.*`.
 - `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 18 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 15 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 16 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\StudyLab.slnx -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 51 testes aprovados.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a criacao do player inicial.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 52 testes aprovados.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a correcao da arvore de detalhes.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar

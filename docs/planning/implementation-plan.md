@@ -120,7 +120,7 @@ Entregas:
 Seguranca:
 
 - Abrir somente arquivos permitidos dentro do curso importado.
-- Validar extensao e contenção do caminho antes de criar a fonte de midia.
+- Validar extensao e contencao do caminho antes de criar a fonte de midia.
 - Usar mensagens seguras quando a aula nao puder ser aberta.
 - Tratar arquivo ausente, movido ou renomeado sem quebrar o app.
 
