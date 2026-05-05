@@ -19,6 +19,7 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
     private bool _isLoaded;
     private bool _hasError;
     private bool _isCompleted;
+    private TimeSpan _resumePosition;
 
     public LessonPlayerViewModel(
         LoadLessonPlaybackUseCase loadLessonPlayback,
@@ -100,6 +101,20 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
 
     public bool CanMarkCompleted => IsLoaded && !HasError && !IsCompleted;
 
+    public TimeSpan ResumePosition
+    {
+        get => _resumePosition;
+        private set
+        {
+            if (SetField(ref _resumePosition, value))
+            {
+                OnPropertyChanged(nameof(ShouldResumePlayback));
+            }
+        }
+    }
+
+    public bool ShouldResumePlayback => IsLoaded && !HasError && !IsCompleted && ResumePosition > TimeSpan.Zero;
+
     public void Load()
     {
         try
@@ -115,11 +130,13 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
             LessonTitle = playback.LessonTitle;
             MediaPath = playback.MediaPath;
             IsCompleted = playback.IsCompleted;
+            ResumePosition = playback.IsCompleted ? TimeSpan.Zero : playback.WatchedDuration;
             ProgressText = FormatProgress(playback.WatchedDuration, playback.IsCompleted);
             StatusMessage = "Pronto para reproduzir";
             IsLoaded = true;
             HasError = false;
             OnPropertyChanged(nameof(CanMarkCompleted));
+            OnPropertyChanged(nameof(ShouldResumePlayback));
         }
         catch (InvalidDataException)
         {
@@ -150,8 +167,10 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
         }
 
         IsCompleted = progress.IsCompleted;
+        ResumePosition = progress.IsCompleted ? TimeSpan.Zero : progress.WatchedDuration;
         ProgressText = FormatProgress(progress.WatchedDuration, progress.IsCompleted);
         StatusMessage = "Aula concluida";
+        OnPropertyChanged(nameof(ShouldResumePlayback));
     }
 
     private void ShowSafeError(string message)
@@ -160,6 +179,7 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
         IsLoaded = false;
         HasError = true;
         IsCompleted = false;
+        ResumePosition = TimeSpan.Zero;
         ProgressText = "Progresso indisponivel";
         StatusMessage = message;
         OnPropertyChanged(nameof(CanMarkCompleted));

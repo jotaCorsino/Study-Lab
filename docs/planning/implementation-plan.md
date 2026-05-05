@@ -112,6 +112,7 @@ Entregas:
 
 - Tela de aula. Iniciada com `LessonPlayerPage`.
 - Player local. Iniciado com `MediaPlayerElement` e resolucao de midia por caso de uso.
+- Retomada de aula. Iniciada posicionando o player pela duracao assistida salva.
 - Aula anterior/proxima. Pendente.
 - Velocidade de reproducao. Pendente.
 - Intro skip por curso. Pendente.

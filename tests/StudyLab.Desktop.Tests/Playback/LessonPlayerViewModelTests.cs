@@ -28,6 +28,8 @@ public sealed class LessonPlayerViewModelTests
         Assert.Equal(Path.GetFullPath(Path.Combine(rootPath, "Modulo 1", "Aula 01.mp4")), viewModel.MediaPath);
         Assert.Equal("Pronto para reproduzir", viewModel.StatusMessage);
         Assert.Equal("3 min assistidos", viewModel.ProgressText);
+        Assert.Equal(TimeSpan.FromMinutes(3), viewModel.ResumePosition);
+        Assert.True(viewModel.ShouldResumePlayback);
         Assert.False(viewModel.IsCompleted);
         Assert.True(viewModel.CanMarkCompleted);
         Assert.DoesNotContain(rootPath, viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
@@ -54,6 +56,7 @@ public sealed class LessonPlayerViewModelTests
         Assert.False(viewModel.CanMarkCompleted);
         Assert.Equal("Aula concluida", viewModel.StatusMessage);
         Assert.Equal("Concluida", viewModel.ProgressText);
+        Assert.False(viewModel.ShouldResumePlayback);
 
         LessonProgressEntry savedProgress = Assert.Single(Assert.IsType<StudyLibrarySnapshot>(repository.SavedSnapshot).Progress);
         Assert.Equal(lessonId, savedProgress.LessonId);
@@ -77,6 +80,8 @@ public sealed class LessonPlayerViewModelTests
         Assert.Null(viewModel.MediaPath);
         Assert.Equal("Aula nao encontrada", viewModel.StatusMessage);
         Assert.False(viewModel.CanMarkCompleted);
+        Assert.Equal(TimeSpan.Zero, viewModel.ResumePosition);
+        Assert.False(viewModel.ShouldResumePlayback);
     }
 
     [Fact]
@@ -97,6 +102,8 @@ public sealed class LessonPlayerViewModelTests
         Assert.Null(viewModel.MediaPath);
         Assert.Equal("Nao foi possivel abrir esta aula com seguranca", viewModel.StatusMessage);
         Assert.False(viewModel.CanMarkCompleted);
+        Assert.Equal(TimeSpan.Zero, viewModel.ResumePosition);
+        Assert.False(viewModel.ShouldResumePlayback);
         Assert.DoesNotContain(rootPath, viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
     }
 

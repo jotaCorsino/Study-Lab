@@ -14,13 +14,24 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-05.
 - Fase atual: Fase 5 - Player e progresso.
-- Status da fase: em andamento, com marcacao manual de conclusao persistida neste recorte.
-- Ultima implementacao concluida: progresso manual da aula salvo no snapshot local.
-- Commit publicado mais recente antes desta etapa: `e8dcfe4 fix: show course detail tree content`.
+- Status da fase: em andamento, com retomada inicial da aula pela posicao salva concluida neste recorte.
+- Ultima implementacao concluida: player aplica a duracao assistida salva ao abrir a aula.
+- Commit publicado mais recente antes desta etapa: `4093341 feat: persist manual lesson progress`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Retomada inicial da aula:
+
+- `LessonPlayerViewModel` passou a expor `ResumePosition` e `ShouldResumePlayback`.
+- A retomada so e habilitada quando a aula carregou sem erro, nao esta concluida e existe duracao assistida maior que zero.
+- Aulas concluidas ou com erro retornam `ResumePosition` zero e nao acionam retomada automatica.
+- `LessonPlayerPage` prepara a posicao de retomada antes de definir a fonte de midia e aplica a posicao quando o `MediaPlayer` dispara `MediaOpened`.
+- A regra de decidir quando retomar fica no view model testavel; a UI apenas aplica a posicao no controle nativo.
+- Nenhum caminho local e exposto em texto de status.
+
+## Historico imediato
 
 Progresso manual da aula:
 
@@ -31,8 +42,6 @@ Progresso manual da aula:
 - `LessonPlayerViewModel` passou a exibir progresso, estado concluido e acionar `MarkCompleted` sem expor caminhos locais.
 - `LessonPlayerPage` recebeu acao nativa no `CommandBar` para marcar a aula como concluida usando a posicao atual do player quando disponivel.
 - A persistencia continua no snapshot JSON existente e a UI segue como adaptador fino.
-
-## Historico imediato
 
 Correcao da arvore visual de detalhes do curso:
 
@@ -162,7 +171,6 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 5 - Player e progresso:
 
 - reler a arvore obrigatoria completa;
-- criar o proximo recorte de retomada de aula, usando a duracao assistida salva para posicionar o player quando a aula abrir;
 - evoluir registro automatico de duracao assistida durante a reproducao;
 - tratar arquivo de midia ausente, movido ou renomeado sem expor caminho local em erro;
 - manter UI sem regra de negocio e com view models testaveis.
@@ -171,7 +179,6 @@ Continuar a Fase 5 - Player e progresso:
 
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
-- Retomada automatica pela posicao salva ainda nao foi conectada ao player.
 - Registro automatico durante reproducao ainda nao foi implementado.
 - Arquivo de midia ausente, movido ou renomeado ainda precisa de tratamento dedicado na Fase 5.
 
@@ -195,6 +202,7 @@ Continuar a Fase 5 - Player e progresso:
 - A arvore da tela de detalhes usa `TreeViewNode.Content`; templates XAML devem acessar propriedades via `Content.*`.
 - Progresso de aula e salvo por `LessonId` deterministico no snapshot local.
 - Marcacao manual de conclusao preserva a maior duracao assistida ja registrada.
+- Retomada inicial usa a duracao assistida salva apenas quando a aula nao esta concluida.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -220,13 +228,14 @@ Continuar a Fase 5 - Player e progresso:
 - Red de TDD confirmado para player inicial: namespaces/classes `StudyLab.Application.Playback` e `StudyLab.Desktop.Presentation.Playback` ausentes antes da implementacao.
 - Red de regressao confirmado para arvore de detalhes: `CourseDetailPageXamlTests.CourseTreeTemplateBindsToTreeViewNodeContent` falhou com bindings antigos sem `Content.*`.
 - Red de TDD confirmado para progresso manual: `RecordLessonProgressUseCase`, `RecordLessonProgressCommand`, `ProgressText`, `CanMarkCompleted` e `MarkCompleted` ausentes antes da implementacao.
+- Red de TDD confirmado para retomada inicial: `ResumePosition` e `ShouldResumePlayback` ausentes antes da implementacao.
 - `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 22 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
 - `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 17 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\StudyLab.slnx -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
 - `dotnet test .\StudyLab.slnx -p:Platform=x64`: 57 testes aprovados.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a marcacao manual de progresso.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a retomada inicial de aula.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar

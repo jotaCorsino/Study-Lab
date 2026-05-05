@@ -2,11 +2,14 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using StudyLab.Desktop.Presentation.Playback;
 using Windows.Media.Core;
+using Windows.Media.Playback;
 
 namespace StudyLab.Desktop;
 
 public sealed partial class LessonPlayerPage : Page
 {
+    private TimeSpan? _pendingResumePosition;
+
     public LessonPlayerPage()
     {
         InitializeComponent();
@@ -31,12 +34,19 @@ public sealed partial class LessonPlayerPage : Page
 
         if (ViewModel.IsLoaded && ViewModel.MediaPath is not null)
         {
+            PrepareResumePosition();
             LessonMediaPlayer.Source = MediaSource.CreateFromUri(new Uri(ViewModel.MediaPath));
         }
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        if (LessonMediaPlayer.MediaPlayer is not null)
+        {
+            LessonMediaPlayer.MediaPlayer.MediaOpened -= LessonMediaPlayer_MediaOpened;
+        }
+
+        _pendingResumePosition = null;
         LessonMediaPlayer.MediaPlayer?.Pause();
         LessonMediaPlayer.Source = null;
         base.OnNavigatedFrom(e);
@@ -62,5 +72,40 @@ public sealed partial class LessonPlayerPage : Page
         StatusInfoBar.Severity = ViewModel.HasError
             ? InfoBarSeverity.Error
             : InfoBarSeverity.Success;
+    }
+
+    private void PrepareResumePosition()
+    {
+        if (LessonMediaPlayer.MediaPlayer is null)
+        {
+            return;
+        }
+
+        LessonMediaPlayer.MediaPlayer.MediaOpened -= LessonMediaPlayer_MediaOpened;
+        if (ViewModel?.ShouldResumePlayback != true)
+        {
+            _pendingResumePosition = null;
+            return;
+        }
+
+        _pendingResumePosition = ViewModel.ResumePosition;
+        LessonMediaPlayer.MediaPlayer.MediaOpened += LessonMediaPlayer_MediaOpened;
+    }
+
+    private void LessonMediaPlayer_MediaOpened(MediaPlayer sender, object args)
+    {
+        DispatcherQueue.TryEnqueue(ApplyPendingResumePosition);
+    }
+
+    private void ApplyPendingResumePosition()
+    {
+        if (_pendingResumePosition is not TimeSpan resumePosition ||
+            LessonMediaPlayer.MediaPlayer is null)
+        {
+            return;
+        }
+
+        LessonMediaPlayer.MediaPlayer.PlaybackSession.Position = resumePosition;
+        _pendingResumePosition = null;
     }
 }
