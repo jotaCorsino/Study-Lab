@@ -106,7 +106,7 @@ Seguranca:
 
 Objetivo: assistir aulas e registrar progresso.
 
-Status: em andamento. O primeiro recorte criou identidade estavel de aula, resolucao segura de midia local, view model testavel de player e pagina WinUI inicial com `MediaPlayerElement`.
+Status: em andamento. O primeiro recorte criou identidade estavel de aula, resolucao segura de midia local, view model testavel de player e pagina WinUI inicial com `MediaPlayerElement`; a retomada e o salvamento automatico de posicao ao sair do player ja foram iniciados.
 
 Entregas:
 
@@ -116,7 +116,7 @@ Entregas:
 - Aula anterior/proxima. Pendente.
 - Velocidade de reproducao. Pendente.
 - Intro skip por curso. Pendente.
-- Marcacao automatica/manual de conclusao. Iniciada com marcacao manual persistida.
+- Marcacao automatica/manual de conclusao. Iniciada com marcacao manual persistida e salvamento automatico da posicao assistida ao sair do player.
 
 Seguranca:
 

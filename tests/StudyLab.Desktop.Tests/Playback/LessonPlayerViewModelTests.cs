@@ -65,6 +65,60 @@ public sealed class LessonPlayerViewModelTests
     }
 
     [Fact]
+    public void SaveCurrentProgressPersistsPlaybackPositionWithoutCompletingLesson()
+    {
+        Guid courseId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid lessonId = LessonPlaybackIdentity.FromCourseAndRelativePath(courseId, "Modulo 1/Aula 01.mp4");
+        FakeStudyLibraryRepository repository = new(CreateSnapshot(
+            CreateCourse(courseId, "C:/Courses/CSharp", "Modulo 1/Aula 01.mp4"),
+            []));
+        LessonPlayerViewModel viewModel = new(
+            new LoadLessonPlaybackUseCase(repository),
+            new RecordLessonProgressUseCase(repository),
+            courseId,
+            lessonId);
+
+        viewModel.Load();
+        viewModel.SaveCurrentProgress(TimeSpan.FromMinutes(4));
+
+        Assert.False(viewModel.IsCompleted);
+        Assert.True(viewModel.CanMarkCompleted);
+        Assert.Equal("Progresso salvo", viewModel.StatusMessage);
+        Assert.Equal("4 min assistidos", viewModel.ProgressText);
+        Assert.Equal(TimeSpan.FromMinutes(4), viewModel.ResumePosition);
+        Assert.True(viewModel.ShouldResumePlayback);
+
+        LessonProgressEntry savedProgress = Assert.Single(Assert.IsType<StudyLibrarySnapshot>(repository.SavedSnapshot).Progress);
+        Assert.Equal(lessonId, savedProgress.LessonId);
+        Assert.Equal(TimeSpan.FromMinutes(4), savedProgress.WatchedDuration);
+        Assert.False(savedProgress.IsCompleted);
+    }
+
+    [Fact]
+    public void SaveCurrentProgressSkipsWhenPositionDoesNotAdvance()
+    {
+        Guid courseId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid lessonId = LessonPlaybackIdentity.FromCourseAndRelativePath(courseId, "Modulo 1/Aula 01.mp4");
+        LessonProgressEntry existingProgress = new(lessonId, TimeSpan.FromMinutes(5), isCompleted: false);
+        FakeStudyLibraryRepository repository = new(CreateSnapshot(
+            CreateCourse(courseId, "C:/Courses/CSharp", "Modulo 1/Aula 01.mp4"),
+            [existingProgress]));
+        LessonPlayerViewModel viewModel = new(
+            new LoadLessonPlaybackUseCase(repository),
+            new RecordLessonProgressUseCase(repository),
+            courseId,
+            lessonId);
+
+        viewModel.Load();
+        viewModel.SaveCurrentProgress(TimeSpan.FromMinutes(3));
+
+        Assert.Null(repository.SavedSnapshot);
+        Assert.Equal(TimeSpan.FromMinutes(5), viewModel.ResumePosition);
+        Assert.Equal("5 min assistidos", viewModel.ProgressText);
+        Assert.Equal("Pronto para reproduzir", viewModel.StatusMessage);
+    }
+
+    [Fact]
     public void LoadShowsSafeErrorWhenLessonDoesNotExist()
     {
         Guid courseId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");

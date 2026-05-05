@@ -41,6 +41,8 @@ public sealed partial class LessonPlayerPage : Page
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        SaveCurrentProgressFromPlayer();
+
         if (LessonMediaPlayer.MediaPlayer is not null)
         {
             LessonMediaPlayer.MediaPlayer.MediaOpened -= LessonMediaPlayer_MediaOpened;
@@ -72,6 +74,17 @@ public sealed partial class LessonPlayerPage : Page
         StatusInfoBar.Severity = ViewModel.HasError
             ? InfoBarSeverity.Error
             : InfoBarSeverity.Success;
+    }
+
+    private void SaveCurrentProgressFromPlayer()
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        TimeSpan currentPosition = LessonMediaPlayer.MediaPlayer?.PlaybackSession.Position ?? TimeSpan.Zero;
+        ViewModel.SaveCurrentProgress(currentPosition);
     }
 
     private void PrepareResumePosition()

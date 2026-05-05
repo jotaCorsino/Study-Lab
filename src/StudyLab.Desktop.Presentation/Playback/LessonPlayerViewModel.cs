@@ -173,6 +173,34 @@ public sealed class LessonPlayerViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(ShouldResumePlayback));
     }
 
+    public void SaveCurrentProgress(TimeSpan currentPosition)
+    {
+        if (!IsLoaded ||
+            HasError ||
+            IsCompleted ||
+            currentPosition <= ResumePosition)
+        {
+            return;
+        }
+
+        LessonProgressEntry? progress = _recordLessonProgress.Record(new RecordLessonProgressCommand(
+            _courseId,
+            _lessonId,
+            currentPosition,
+            isCompleted: false));
+        if (progress is null)
+        {
+            ShowSafeError("Aula nao encontrada");
+            return;
+        }
+
+        IsCompleted = progress.IsCompleted;
+        ResumePosition = progress.IsCompleted ? TimeSpan.Zero : progress.WatchedDuration;
+        ProgressText = FormatProgress(progress.WatchedDuration, progress.IsCompleted);
+        StatusMessage = progress.IsCompleted ? "Aula concluida" : "Progresso salvo";
+        OnPropertyChanged(nameof(ShouldResumePlayback));
+    }
+
     private void ShowSafeError(string message)
     {
         MediaPath = null;
