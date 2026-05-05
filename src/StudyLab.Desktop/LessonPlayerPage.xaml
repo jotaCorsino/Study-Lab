@@ -27,8 +27,21 @@
                     <TextBlock
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         Text="{Binding CourseTitle}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding ProgressText}" />
                 </StackPanel>
             </CommandBar.Content>
+            <AppBarButton
+                x:Name="MarkCompletedButton"
+                AutomationProperties.Name="Marcar aula como concluida"
+                Click="MarkCompletedButton_Click"
+                IsEnabled="{Binding CanMarkCompleted}"
+                Label="Concluir aula">
+                <AppBarButton.Icon>
+                    <SymbolIcon Symbol="Accept" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton
                 AutomationProperties.Name="Voltar para detalhes do curso"
                 Click="BackButton_Click"

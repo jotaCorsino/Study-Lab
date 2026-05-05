@@ -27,57 +27,31 @@ public sealed class LoadLessonPlaybackUseCase
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        CourseCatalogEntry? course = _repository.Load()
-            .Courses
-            .FirstOrDefault(entry => entry.Id == command.CourseId);
-
-        if (course is null)
-        {
-            return null;
-        }
-
-        CourseCatalogItem? lesson = EnumerateLessons(course.Items)
-            .FirstOrDefault(item => GetLessonId(course.Id, item) == command.LessonId);
-
-        if (lesson is null)
+        StudyLibrarySnapshot snapshot = _repository.Load();
+        if (!PlaybackLessonCatalog.TryFindLesson(
+                snapshot,
+                command.CourseId,
+                command.LessonId,
+                out CourseCatalogEntry? course,
+                out CourseCatalogItem? lesson) ||
+            course is null ||
+            lesson is null)
         {
             return null;
         }
 
         string mediaPath = ResolveMediaPath(course.RootPath, lesson.RelativePath);
+        LessonProgressEntry? progress = snapshot.Progress
+            .FirstOrDefault(entry => entry.LessonId == command.LessonId);
 
         return new LessonPlayback(
             course.Id,
             command.LessonId,
             course.Title,
             lesson.Title,
-            mediaPath);
-    }
-
-    private static IEnumerable<CourseCatalogItem> EnumerateLessons(IEnumerable<CourseCatalogItem> items)
-    {
-        foreach (CourseCatalogItem item in items)
-        {
-            if (item.Type == CourseCatalogItemType.Lesson)
-            {
-                yield return item;
-            }
-
-            foreach (CourseCatalogItem child in EnumerateLessons(item.Children))
-            {
-                yield return child;
-            }
-        }
-    }
-
-    private static Guid GetLessonId(Guid courseId, CourseCatalogItem item)
-    {
-        if (item.Type != CourseCatalogItemType.Lesson || item.RelativePath is null)
-        {
-            throw new InvalidDataException("Stored catalog item is not a playable lesson.");
-        }
-
-        return LessonPlaybackIdentity.FromCourseAndRelativePath(courseId, item.RelativePath);
+            mediaPath,
+            progress?.WatchedDuration ?? TimeSpan.Zero,
+            progress?.IsCompleted ?? false);
     }
 
     private static string ResolveMediaPath(string rootPath, string? relativePath)

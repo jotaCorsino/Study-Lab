@@ -13,9 +13,10 @@ public sealed class LoadLessonPlaybackUseCaseTests
         string rootPath = Path.Combine(Path.GetTempPath(), "StudyLab.Tests", "Curso CSharp");
         CourseCatalogEntry course = CreateCourse(courseId, rootPath, "Modulo 1/Aula 01.mp4");
         Guid lessonId = LessonPlaybackIdentity.FromCourseAndRelativePath(courseId, "Modulo 1/Aula 01.mp4");
+        LessonProgressEntry existingProgress = new(lessonId, TimeSpan.FromMinutes(7), isCompleted: true);
         LoadLessonPlaybackUseCase useCase = new(new FakeStudyLibraryRepository(new StudyLibrarySnapshot(
             [course],
-            [],
+            [existingProgress],
             StudyPreferences.Default)));
 
         LessonPlayback playback = Assert.IsType<LessonPlayback>(useCase.Load(new LoadLessonPlaybackCommand(courseId, lessonId)));
@@ -25,6 +26,8 @@ public sealed class LoadLessonPlaybackUseCaseTests
         Assert.Equal("Curso C#", playback.CourseTitle);
         Assert.Equal("Aula 01", playback.LessonTitle);
         Assert.Equal(Path.GetFullPath(Path.Combine(rootPath, "Modulo 1", "Aula 01.mp4")), playback.MediaPath);
+        Assert.Equal(TimeSpan.FromMinutes(7), playback.WatchedDuration);
+        Assert.True(playback.IsCompleted);
     }
 
     [Fact]

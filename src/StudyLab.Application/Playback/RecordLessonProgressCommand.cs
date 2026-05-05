@@ -1,15 +1,10 @@
-using StudyLab.Application.Common;
-
 namespace StudyLab.Application.Playback;
 
-public sealed class LessonPlayback
+public sealed class RecordLessonProgressCommand
 {
-    public LessonPlayback(
+    public RecordLessonProgressCommand(
         Guid courseId,
         Guid lessonId,
-        string courseTitle,
-        string lessonTitle,
-        string mediaPath,
         TimeSpan watchedDuration,
         bool isCompleted)
     {
@@ -23,16 +18,13 @@ public sealed class LessonPlayback
             throw new ArgumentException("Lesson id cannot be empty.", nameof(lessonId));
         }
 
-        CourseId = courseId;
-        LessonId = lessonId;
-        CourseTitle = ApplicationGuard.RequiredText(courseTitle, nameof(courseTitle));
-        LessonTitle = ApplicationGuard.RequiredText(lessonTitle, nameof(lessonTitle));
-        MediaPath = ApplicationGuard.RequiredText(mediaPath, nameof(mediaPath));
         if (watchedDuration < TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(watchedDuration), watchedDuration, "Watched duration cannot be negative.");
         }
 
+        CourseId = courseId;
+        LessonId = lessonId;
         WatchedDuration = watchedDuration;
         IsCompleted = isCompleted;
     }
@@ -40,12 +32,6 @@ public sealed class LessonPlayback
     public Guid CourseId { get; }
 
     public Guid LessonId { get; }
-
-    public string CourseTitle { get; }
-
-    public string LessonTitle { get; }
-
-    public string MediaPath { get; }
 
     public TimeSpan WatchedDuration { get; }
 

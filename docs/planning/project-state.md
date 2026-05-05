@@ -14,13 +14,25 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 - Data de referencia: 2026-05-05.
 - Fase atual: Fase 5 - Player e progresso.
-- Status da fase: em andamento, com correcao do carregamento visual da arvore do curso concluida neste recorte.
-- Ultima implementacao concluida: correcao do binding do `TreeView` da tela de detalhes do curso.
-- Commit publicado mais recente antes desta etapa: `e6512e6 feat: add initial lesson player`.
+- Status da fase: em andamento, com marcacao manual de conclusao persistida neste recorte.
+- Ultima implementacao concluida: progresso manual da aula salvo no snapshot local.
+- Commit publicado mais recente antes desta etapa: `e8dcfe4 fix: show course detail tree content`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Progresso manual da aula:
+
+- `RecordLessonProgressCommand` e `RecordLessonProgressUseCase` criados em Application para salvar progresso de aula existente no catalogo.
+- O caso de uso rejeita ids vazios, duracao negativa e nao salva quando a aula nao existe.
+- Ao gravar progresso existente, a duracao assistida nao diminui e uma conclusao ja registrada nao e revertida.
+- `LoadLessonPlaybackUseCase` passou a carregar `WatchedDuration` e `IsCompleted` junto com a midia segura da aula.
+- `LessonPlayerViewModel` passou a exibir progresso, estado concluido e acionar `MarkCompleted` sem expor caminhos locais.
+- `LessonPlayerPage` recebeu acao nativa no `CommandBar` para marcar a aula como concluida usando a posicao atual do player quando disponivel.
+- A persistencia continua no snapshot JSON existente e a UI segue como adaptador fino.
+
+## Historico imediato
 
 Correcao da arvore visual de detalhes do curso:
 
@@ -30,8 +42,6 @@ Correcao da arvore visual de detalhes do curso:
 - `CourseTreeView_ItemInvoked` agora tambem entende quando o evento entrega o proprio `TreeViewNode`, mantendo a navegacao para o player.
 - Teste de regressao `CourseDetailPageXamlTests` criado para garantir que o template continue apontando para `TreeViewNode.Content`.
 - A correcao nao altera modelo de dominio, persistencia ou dados locais do usuario.
-
-## Historico imediato
 
 Player local inicial:
 
@@ -152,8 +162,8 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 Continuar a Fase 5 - Player e progresso:
 
 - reler a arvore obrigatoria completa;
-- criar o primeiro recorte de persistencia de progresso da aula com TDD;
-- decidir o contrato para registrar duracao assistida, conclusao manual/automatica e continuidade de onde parou;
+- criar o proximo recorte de retomada de aula, usando a duracao assistida salva para posicionar o player quando a aula abrir;
+- evoluir registro automatico de duracao assistida durante a reproducao;
 - tratar arquivo de midia ausente, movido ou renomeado sem expor caminho local em erro;
 - manter UI sem regra de negocio e com view models testaveis.
 
@@ -161,7 +171,8 @@ Continuar a Fase 5 - Player e progresso:
 
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
-- Progresso de player ainda nao e persistido.
+- Retomada automatica pela posicao salva ainda nao foi conectada ao player.
+- Registro automatico durante reproducao ainda nao foi implementado.
 - Arquivo de midia ausente, movido ou renomeado ainda precisa de tratamento dedicado na Fase 5.
 
 ## Decisoes recentes
@@ -182,6 +193,8 @@ Continuar a Fase 5 - Player e progresso:
 - Player local inicial usa `MediaPlayerElement`, mas a resolucao e validacao do arquivo ficam em Application.
 - Erros de player devem continuar sem caminho local, stack trace ou detalhes internos na mensagem exibida.
 - A arvore da tela de detalhes usa `TreeViewNode.Content`; templates XAML devem acessar propriedades via `Content.*`.
+- Progresso de aula e salvo por `LessonId` deterministico no snapshot local.
+- Marcacao manual de conclusao preserva a maior duracao assistida ja registrada.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -206,13 +219,14 @@ Continuar a Fase 5 - Player e progresso:
 - Red de TDD confirmado para duplicidade: `CourseLibraryImportStatus`, `Status`, `WasImported` ausentes e leitor ainda chamado na reimportacao.
 - Red de TDD confirmado para player inicial: namespaces/classes `StudyLab.Application.Playback` e `StudyLab.Desktop.Presentation.Playback` ausentes antes da implementacao.
 - Red de regressao confirmado para arvore de detalhes: `CourseDetailPageXamlTests.CourseTreeTemplateBindsToTreeViewNodeContent` falhou com bindings antigos sem `Content.*`.
-- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 18 testes aprovados.
+- Red de TDD confirmado para progresso manual: `RecordLessonProgressUseCase`, `RecordLessonProgressCommand`, `ProgressText`, `CanMarkCompleted` e `MarkCompleted` ausentes antes da implementacao.
+- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 22 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 16 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 17 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\StudyLab.slnx -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 52 testes aprovados.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a correcao da arvore de detalhes.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 57 testes aprovados.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a marcacao manual de progresso.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar

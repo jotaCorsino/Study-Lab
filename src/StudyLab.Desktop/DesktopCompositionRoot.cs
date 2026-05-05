@@ -31,8 +31,11 @@ internal static class DesktopCompositionRoot
 
     public static LessonPlayerViewModel CreateLessonPlayerViewModel(Guid courseId, Guid lessonId)
     {
+        IStudyLibraryRepository repository = CreateRepository();
+
         return new LessonPlayerViewModel(
-            new LoadLessonPlaybackUseCase(CreateRepository()),
+            new LoadLessonPlaybackUseCase(repository),
+            new RecordLessonProgressUseCase(repository),
             courseId,
             lessonId);
     }

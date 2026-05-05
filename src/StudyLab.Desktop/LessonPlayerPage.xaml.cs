@@ -49,4 +49,18 @@ public sealed partial class LessonPlayerPage : Page
             Frame.GoBack();
         }
     }
+
+    private void MarkCompletedButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        TimeSpan currentPosition = LessonMediaPlayer.MediaPlayer?.PlaybackSession.Position ?? TimeSpan.Zero;
+        ViewModel.MarkCompleted(currentPosition);
+        StatusInfoBar.Severity = ViewModel.HasError
+            ? InfoBarSeverity.Error
+            : InfoBarSeverity.Success;
+    }
 }

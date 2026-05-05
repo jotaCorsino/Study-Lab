@@ -115,13 +115,14 @@ Entregas:
 - Aula anterior/proxima. Pendente.
 - Velocidade de reproducao. Pendente.
 - Intro skip por curso. Pendente.
-- Marcacao automatica/manual de conclusao. Pendente.
+- Marcacao automatica/manual de conclusao. Iniciada com marcacao manual persistida.
 
 Seguranca:
 
 - Abrir somente arquivos permitidos dentro do curso importado.
 - Validar extensao e contencao do caminho antes de criar a fonte de midia.
 - Usar mensagens seguras quando a aula nao puder ser aberta.
+- Salvar progresso apenas para aulas existentes no catalogo importado.
 - Tratar arquivo ausente, movido ou renomeado sem quebrar o app.
 
 ## Fase 6 - Metas, calendario e abono
