@@ -1,8 +1,10 @@
 using global::StudyLab.Application.Courses.Importing;
 using global::StudyLab.Application.Persistence;
+using global::StudyLab.Application.Playback;
 using global::StudyLab.Infrastructure.Courses.Importing;
 using global::StudyLab.Infrastructure.Persistence;
 using StudyLab.Desktop.Presentation.Catalog;
+using StudyLab.Desktop.Presentation.Playback;
 using Microsoft.UI.Xaml;
 
 namespace StudyLab.Desktop;
@@ -25,6 +27,14 @@ internal static class DesktopCompositionRoot
         return new CourseDetailViewModel(
             new LoadCourseDetailUseCase(CreateRepository()),
             courseId);
+    }
+
+    public static LessonPlayerViewModel CreateLessonPlayerViewModel(Guid courseId, Guid lessonId)
+    {
+        return new LessonPlayerViewModel(
+            new LoadLessonPlaybackUseCase(CreateRepository()),
+            courseId,
+            lessonId);
     }
 
     private static JsonStudyLibraryRepository CreateRepository()

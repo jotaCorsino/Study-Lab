@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="StudyLab.Desktop.LessonPlayerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d">
+
+    <Grid Padding="32" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <CommandBar
+            DefaultLabelPosition="Right"
+            IsDynamicOverflowEnabled="True">
+            <CommandBar.Content>
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        FontSize="28"
+                        FontWeight="SemiBold"
+                        Text="{Binding LessonTitle}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding CourseTitle}" />
+                </StackPanel>
+            </CommandBar.Content>
+            <AppBarButton
+                AutomationProperties.Name="Voltar para detalhes do curso"
+                Click="BackButton_Click"
+                Label="Voltar">
+                <AppBarButton.Icon>
+                    <SymbolIcon Symbol="Back" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+        </CommandBar>
+
+        <InfoBar
+            x:Name="StatusInfoBar"
+            Grid.Row="1"
+            IsOpen="True"
+            Message="{Binding StatusMessage}" />
+
+        <MediaPlayerElement
+            x:Name="LessonMediaPlayer"
+            Grid.Row="2"
+            AreTransportControlsEnabled="True"
+            AutoPlay="False"
+            Stretch="Uniform" />
+    </Grid>
+</Page>

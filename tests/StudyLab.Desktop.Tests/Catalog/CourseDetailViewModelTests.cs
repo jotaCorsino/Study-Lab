@@ -32,6 +32,10 @@ public sealed class CourseDetailViewModelTests
         CourseDetailItemViewModel firstLesson = module.Children[0];
         Assert.Equal("Aula 01", firstLesson.Title);
         Assert.Equal("Aula", firstLesson.KindText);
+        Assert.True(firstLesson.CanOpenLesson);
+        Assert.NotNull(firstLesson.LessonId);
+        Assert.False(module.CanOpenLesson);
+        Assert.Null(module.LessonId);
     }
 
     [Fact]

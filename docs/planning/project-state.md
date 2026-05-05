@@ -12,26 +12,36 @@ Este e o documento vivo de continuidade do Study Lab. Ele deve ser lido junto co
 
 ## Ponto atual
 
-- Data de referencia: 2026-05-04.
-- Fase atual: Fase 4 - App desktop e catalogo.
-- Status da fase: em andamento, com verificacao de solucao x64 concluida neste recorte.
-- Ultima implementacao concluida: ajuste de `StudyLab.slnx` para build/test x64.
-- Commit publicado mais recente antes desta etapa: `e7282ca feat: skip duplicate course imports`.
+- Data de referencia: 2026-05-05.
+- Fase atual: Fase 5 - Player e progresso.
+- Status da fase: em andamento, com player local inicial criado neste recorte.
+- Ultima implementacao concluida: base segura de player local e navegacao da aula.
+- Commit publicado mais recente antes desta etapa: `3aa5a6c build: enable x64 solution verification`.
 - Branch atual: `main`.
 - Remoto oficial: `origin` em `https://github.com/jotaCorsino/Study-Lab.git`.
 
 ## Ultima etapa concluida
+
+Player local inicial:
+
+- Fase 4 foi considerada concluida no planejamento macro apos catalogo, importacao, detalhe e verificacao de solucao x64.
+- `LessonPlaybackIdentity` criado em Application para derivar um identificador estavel de aula a partir de `courseId` e caminho relativo normalizado.
+- `LoadLessonPlaybackUseCase` criado para localizar a aula no catalogo, validar extensao de video permitida, canonicalizar raiz + caminho relativo e bloquear abertura fora da raiz do curso.
+- `CourseDetailItem` e `CourseDetailItemViewModel` passaram a expor `LessonId` apenas para itens de aula, sem expor caminho local na tela de detalhes.
+- `LessonPlayerViewModel` criado em `StudyLab.Desktop.Presentation` com mensagens seguras para aula ausente ou midia rejeitada.
+- `LessonPlayerPage` criada em WinUI com `MediaPlayerElement`, controles nativos e navegacao a partir do clique em uma aula na arvore de detalhes.
+- A UI continua como adaptador fino: a decisao de qual arquivo pode ser aberto fica no caso de uso de Application.
+
+## Historico imediato
 
 Verificacao de solucao x64:
 
 - `StudyLab.slnx` recebeu `<Configurations>` com `Any CPU` e `x64`.
 - O projeto `StudyLab.Desktop` recebeu mapeamento de plataforma no `.slnx` com `<Platform Project="x64" />`.
 - O erro `MSB4126` para `Debug|x64` foi eliminado.
-- `dotnet build .\StudyLab.slnx -p:Platform=x64` agora compila o WinUI em `bin\x64\Debug\...\win-x64` sem avisos ou erros.
-- `dotnet test .\StudyLab.slnx -p:Platform=x64` agora executa todos os projetos de teste da solucao com sucesso.
+- `dotnet build .\StudyLab.slnx -p:Platform=x64` compila o WinUI em `bin\x64\Debug\...\win-x64` sem avisos ou erros.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64` executa todos os projetos de teste da solucao com sucesso.
 - A verificacao por projeto continua valida, mas a solucao agora e o comando principal para a regressao local x64.
-
-## Historico imediato
 
 Regra de duplicidade de importacao:
 
@@ -130,16 +140,20 @@ Fundacao inicial do repositorio publicada no commit `4ea56bf docs: bootstrap stu
 
 ## Proxima etapa executavel
 
-Continuar a Fase 4 - App desktop e catalogo:
+Continuar a Fase 5 - Player e progresso:
 
 - reler a arvore obrigatoria completa;
-- avaliar se a Fase 4 ja pode ser encerrada e preparar a entrada da Fase 5 - player e progresso;
+- criar o primeiro recorte de persistencia de progresso da aula com TDD;
+- decidir o contrato para registrar duracao assistida, conclusao manual/automatica e continuidade de onde parou;
+- tratar arquivo de midia ausente, movido ou renomeado sem expor caminho local em erro;
 - manter UI sem regra de negocio e com view models testaveis.
 
 ## Pendencias praticas
 
 - Definir identidade/assinatura/distribuicao MSIX antes de release.
 - Framework MVVM/toolkit ainda precisa de decisao futura.
+- Progresso de player ainda nao e persistido.
+- Arquivo de midia ausente, movido ou renomeado ainda precisa de tratamento dedicado na Fase 5.
 
 ## Decisoes recentes
 
@@ -154,6 +168,10 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Rejeicoes de importacao sao exibidas no catalogo apenas com caminho relativo normalizado e motivo amigavel.
 - Reimportacao da mesma pasta e tratada como duplicidade ignorada antes de ler o filesystem.
 - `StudyLab.slnx` declara `Any CPU` e `x64`; o projeto WinUI e mapeado para `x64` na verificacao de solucao.
+- Fase 4 foi encerrada apos catalogo, importacao, detalhes e verificacao x64.
+- Fase 5 iniciou com identidade estavel de aula derivada de `courseId` + caminho relativo.
+- Player local inicial usa `MediaPlayerElement`, mas a resolucao e validacao do arquivo ficam em Application.
+- Erros de player devem continuar sem caminho local, stack trace ou detalhes internos na mensagem exibida.
 - TDD definido como fluxo padrao para comportamento de negocio.
 - xUnit definido como framework de testes unitarios.
 - Importacao inicial definida como arvore flexivel de rascunho em Application; ver `docs/decisions/ADR-0002-imported-course-tree.md`.
@@ -176,13 +194,14 @@ Continuar a Fase 4 - App desktop e catalogo:
 - Red de TDD confirmado para detalhe Presentation: `CourseDetailViewModel` ausente.
 - Red de TDD confirmado para resumo de rejeicoes Presentation: `RejectedCourseFileViewModel`, `RejectedFiles`, `HasRejectedFiles` e `RejectedFilesSummary` ausentes.
 - Red de TDD confirmado para duplicidade: `CourseLibraryImportStatus`, `Status`, `WasImported` ausentes e leitor ainda chamado na reimportacao.
-- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 13 testes aprovados.
+- Red de TDD confirmado para player inicial: namespaces/classes `StudyLab.Application.Playback` e `StudyLab.Desktop.Presentation.Playback` ausentes antes da implementacao.
+- `dotnet test .\tests\StudyLab.Application.Tests\StudyLab.Application.Tests.csproj`: 18 testes aprovados.
 - `dotnet test .\tests\StudyLab.Infrastructure.Tests\StudyLab.Infrastructure.Tests.csproj`: 7 testes aprovados.
-- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 12 testes aprovados.
+- `dotnet test .\tests\StudyLab.Desktop.Tests\StudyLab.Desktop.Tests.csproj`: 15 testes aprovados.
 - `dotnet test .\tests\StudyLab.Domain.Tests\StudyLab.Domain.Tests.csproj`: 11 testes aprovados.
 - `dotnet build .\StudyLab.slnx -p:Platform=x64`: sucesso, 0 avisos e 0 erros.
-- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 43 testes aprovados.
-- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a verificacao de solucao x64.
+- `dotnet test .\StudyLab.slnx -p:Platform=x64`: 51 testes aprovados.
+- Launch via `shell:AppsFolder` confirmou processo `StudyLab.Desktop` ativo com janela `Study Lab` apos a criacao do player inicial.
 - `git status --short -uall` revisado: apenas codigo, docs e assets do template WinUI; `bin/`, `obj/` e artefatos permanecem ignorados.
 
 ## Criterio para continuar

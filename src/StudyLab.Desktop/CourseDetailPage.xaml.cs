@@ -34,6 +34,19 @@ public sealed partial class CourseDetailPage : Page
         }
     }
 
+    private void CourseTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+    {
+        if (ViewModel is null ||
+            args.InvokedItem is not CourseDetailItemViewModel item ||
+            !item.CanOpenLesson ||
+            item.LessonId is not Guid lessonId)
+        {
+            return;
+        }
+
+        Frame.Navigate(typeof(LessonPlayerPage), DesktopCompositionRoot.CreateLessonPlayerViewModel(ViewModel.CourseId, lessonId));
+    }
+
     private void RebuildTree()
     {
         CourseTreeView.RootNodes.Clear();

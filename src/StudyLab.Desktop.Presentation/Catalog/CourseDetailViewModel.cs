@@ -28,6 +28,8 @@ public sealed class CourseDetailViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public Guid CourseId => _courseId;
+
     public ObservableCollection<CourseDetailItemViewModel> Items { get; } = [];
 
     public string Title

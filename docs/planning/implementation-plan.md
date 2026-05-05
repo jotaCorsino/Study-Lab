@@ -80,7 +80,7 @@ Seguranca:
 
 Objetivo: criar shell Windows e fluxo basico de catalogo.
 
-Status: em andamento. O scaffold WinUI, a camada `StudyLab.Desktop.Presentation`, os view models testaveis, o catalogo inicial, o fluxo basico de importacao pela UI, o resumo de arquivos rejeitados, a regra de duplicidade de importacao, a tela de detalhes do curso e a verificacao de solucao x64 ja foram criados. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
+Status: concluida. O scaffold WinUI, a camada `StudyLab.Desktop.Presentation`, os view models testaveis, o catalogo inicial, o fluxo basico de importacao pela UI, o resumo de arquivos rejeitados, a regra de duplicidade de importacao, a tela de detalhes do curso e a verificacao de solucao x64 ja foram criados. A decisao de scaffold/empacotamento esta registrada em `docs/decisions/ADR-0004-winui-scaffold-and-packaging.md`.
 
 Entregas:
 
@@ -106,18 +106,22 @@ Seguranca:
 
 Objetivo: assistir aulas e registrar progresso.
 
+Status: em andamento. O primeiro recorte criou identidade estavel de aula, resolucao segura de midia local, view model testavel de player e pagina WinUI inicial com `MediaPlayerElement`.
+
 Entregas:
 
-- Tela de aula.
-- Player local.
-- Aula anterior/proxima.
-- Velocidade de reproducao.
-- Intro skip por curso.
-- Marcacao automatica/manual de conclusao.
+- Tela de aula. Iniciada com `LessonPlayerPage`.
+- Player local. Iniciado com `MediaPlayerElement` e resolucao de midia por caso de uso.
+- Aula anterior/proxima. Pendente.
+- Velocidade de reproducao. Pendente.
+- Intro skip por curso. Pendente.
+- Marcacao automatica/manual de conclusao. Pendente.
 
 Seguranca:
 
 - Abrir somente arquivos permitidos dentro do curso importado.
+- Validar extensao e contenção do caminho antes de criar a fonte de midia.
+- Usar mensagens seguras quando a aula nao puder ser aberta.
 - Tratar arquivo ausente, movido ou renomeado sem quebrar o app.
 
 ## Fase 6 - Metas, calendario e abono
